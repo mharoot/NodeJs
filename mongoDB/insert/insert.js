@@ -1,4 +1,4 @@
-// Require/Import mongodb native drivers.
+// Import mongodb native drivers.
 var mongodb     = require('mongodb');  
 
 
