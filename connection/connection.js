@@ -11,7 +11,7 @@ var url		= 'mongodb://localhost:27017/my_database_name';
 
 
 // Use connect method to connect to the mongodb server.
-MongoClient.conect(url, function (err, db) {
+MongoClient.connect(url, function (err, db) {
 	if (err) {
 		console.log('Unable to connect to the mongoDB server. ERROR:', err);
 	} else {
