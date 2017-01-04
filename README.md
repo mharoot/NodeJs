@@ -14,7 +14,7 @@ collections are simply a set of documents that consist of data stored as a key-v
 Making a Connection with MongoDB in Node.js:
 ------------------------------------------------------------------------------------------
 	1. On the command line type: npm install mongodb.
-	2. Copy and paste connection.js provided for you.
+	2. Copy and paste connection.js provided for you in the connection folder.
 	3. connection.js is broken down into logical steps for you to follow the rest of
 	   the steps in making a connection to a mongodb server.
 
