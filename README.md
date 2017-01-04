@@ -4,7 +4,7 @@ MongoDB:
 --------------------------------------------------------------------------------
     1. connect
     2. insert
-    3. to do - removing
+    3. query
     4. to do - updating
 
 
