@@ -8,11 +8,19 @@ MongoDb is an increasingly popular document-based, high performance NoSQL databa
 
 
 
-Making a Connection with MongoDB in Node.js:
+Connection:
 --------------------------------------------------------------------------------
 	1. On the command line type: npm install mongodb.
-	2. Copy and paste connection.js provided for you in the connection folder.
+	2. Copy and paste connection.js provided for you in the connect folder.
 	3. connection.js is broken down into logical steps for you to follow the rest of the steps in making a connection to a mongodb server.
+
+
+
+Inserting data:
+--------------------------------------------------------------------------------
+	1. Copy and paste insert.js provided for you in the insert folder.
+	2. insert.js uses connection.js as a skeleton.
+	3. insert.js is broken down into logical steps inside the function createSomeUsers(db){ // code here }
 
 
 
