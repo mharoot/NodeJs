@@ -31,9 +31,8 @@ function findAllUsers(db) {
 
 	// Find collection of 'users' whos age is 22
     	var query   = { "age": 22 };
-   	
-	// collection.find(query).toArray(function(err, items) {
-   
+
+	// collection.find(query).toArray(function(err, items){
     	collection.find().toArray(function(err, items) {
           if (err) {
             reject(err);
