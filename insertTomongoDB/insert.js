@@ -45,5 +45,4 @@ function createSomeUsers(db) {
 			console.log('Inserted %d documents into the "users" collection.  The documents inserted with "_id" are: ', result.length, result);
 		}
 	});
-
 }
