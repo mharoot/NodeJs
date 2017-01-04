@@ -1,0 +1,16 @@
+{
+    "name"        : "find",
+    "version "    : "0.0.1",
+    "description" : "Using MongoDB with Node.js",
+    "main"        : "find.js",
+    "scripts"     : {
+        "test" : "echo \"Error: no test specified"
+    },
+    "author"      : "Michael Harootoonyan",
+    "license"     : "ISC",
+    "dependencies": {
+        "socket.io" :"*",
+        "express"   :"*",
+	    "mongodb"   :"*"
+    }
+}

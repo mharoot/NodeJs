@@ -47,3 +47,4 @@ function createSomeUsers(db) {
 	});
 
 }
+
