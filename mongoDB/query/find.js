@@ -37,7 +37,7 @@ function findAllUsers(db) {
           if (err) {
             reject(err);
           } else {
-            console.log(items);
+            console.log(items[0]);
           }          
         });
 }
