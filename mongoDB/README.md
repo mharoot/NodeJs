@@ -23,6 +23,13 @@ Inserting data:
 	3. insert.js is broken down into logical steps inside the function createSomeUsers(db){ // code here }
 
 
+Querying data:
+--------------------------------------------------------------------------------
+	1. run insert.js to populate with data (skip this step if you have done Inserting data:)
+	2. Copy and paste find.js provided for you in the Query folder.
+	3. find.js uses connection.js as a skeleton.
+	4. find.js is broken down into logical steps inside the function findAllUsers(db){ // code here }
+
 
 Command Line Definitions:
 --------------------------------------------------------------------------------
