@@ -1,0 +1,16 @@
+{
+    "name"        : "getData",
+    "version "    : "0.0.1",
+    "description" : "Using MongoDB with Node.js to append data to an html table",
+    "main"        : "getData.js",
+    "scripts"     : {
+        "test" : "echo \"Error: no test specified"
+    },
+    "author"      : "Michael Harootoonyan",
+    "license"     : "ISC",
+    "dependencies": {
+        "socket.io" :"*",
+        "express"   :"*",
+	    "mongodb"   :"*"
+    }
+}
