@@ -1,13 +1,13 @@
 var DATA_TABLE 		= [];											// Holds the data from the queries.
 var connections		= [];											// connections[] = Connected sockets.
-var express 		= require('express');   						// Import express for static hosting of css,js,etc fies.
-var app     		= express(); 									// Give our app the express properties.
+var express 		= require('express');							// Import express for static hosting of css,js,etc fies.
+var app     		= express();									// Give our app the express properties.
 var server  		= require('http').createServer(app);	 		// Create a server object for our app to run.
 var io      		= require('socket.io').listen(server); 			// Import sockets to handle multiple incoming requests.
-var mongodb     	= require('mongodb');  						 	// Import mongodb native drivers.
-var MongoClient 	= mongodb.MongoClient; 						 	// MongoClient interface allows connection to a mongodb server.
-var url			    = 'mongodb://localhost:27017/my_database_name'; // url = Connection URL.  This is where your mongodb server is running.													
-server.listen(process.env.PORT || 3000); 							// begin listening to the server
+var mongodb     	= require('mongodb');							// Import mongodb native drivers.
+var MongoClient 	= mongodb.MongoClient;							// MongoClient interface allows connection to a mongodb server.
+var url			    = 'mongodb://localhost:27017/my_database_name';	// url = Connection URL.  This is where your mongodb server is running.													
+server.listen(process.env.PORT || 3000);							// begin listening to the server
 
 
 app.use(express.static('public')); 									// Enables hosting files statically in folder for our app.
