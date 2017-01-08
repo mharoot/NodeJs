@@ -38,7 +38,7 @@ io.sockets.on('connection', function (socket) {					// Client made connection.
 				io.sockets.emit('set data', items);	// Render data table on client end.
 			}          
 		});
-		db_handler.close(); 					// Close connection.
+		// db_handler.close(); 					// Close connection.
 	});
 
     socket.on('disconnect', function (data) {
