@@ -47,4 +47,3 @@ io.sockets.on('connection', function (socket) {					// Client made connection.
     });
 
 });
-
