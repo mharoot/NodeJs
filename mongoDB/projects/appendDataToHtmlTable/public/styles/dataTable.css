@@ -1,0 +1,17 @@
+body {
+    margin-top:30px;
+}
+
+table, th, td {
+    border: 2px solid black;
+}
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: left;
+    word-wrap:break-word;
+    padding:1%;
+}

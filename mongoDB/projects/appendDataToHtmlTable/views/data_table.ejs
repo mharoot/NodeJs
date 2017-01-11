@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <% include partials/header.ejs %>
+    </head>
+
+    <body>
+     <div class="container">
+	  <div class="col-md-12">
+        <table class="well" id="data_table">
+            <th> <strong> id    </strong> </th>
+            <th> <strong> name  </strong> </th>
+            <th> <strong> age   </strong> </th>
+            <th> <strong> roles </strong> </th>   
+            <% for (var i = 0; i < data.length; i++) { %>
+                <tr> 
+                    <td> <%= data[i]._id  %> </td>
+                    <td> <%= data[i].name %> </td>
+                    <td> <%= data[i].age  %> </td>
+                    <td>
+                        <ul>
+                        <% for (var j = 0; j < data[i].roles.length; j++) { // iterate through different roles. %>
+                            <li> <%= data[i].roles[j] %> </li>
+                        <% } %>
+                        </ul>
+                    </td> 
+                </tr>
+            <% } %>
+        </table>
+      </div>
+	 </div>
+    </body>
+
+</html>
