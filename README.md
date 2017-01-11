@@ -8,9 +8,9 @@ MongoDB:
     4. to do - updating
 
 
-Socket.io:
+Sockets:
 --------------------------------------------------------------------------------
-    1. to do - upload simple chat project
+    1. Chat - simple chat application demonstrating the use of sockets.
     2. to do - upload simple game project
 
 
