@@ -1,0 +1,10 @@
+body {
+	margin-top:30%;
+}
+
+h1 {
+	color:green;
+	border-style: solid;
+	border-color: red;
+	border-padding:5%;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "express-barebones",
+  "version": "1.0.0",
+  "description": "Express skeleton for static file hosting.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mharoot/node_js.git"
+  },
+  "keywords": [
+    "express.js",
+    "static files",
+    "skeleton",
+    "barebones"
+  ],
+  "author": "Michael Harootoonyan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mharoot/node_js/issues"
+  },
+  "homepage": "https://github.com/mharoot/node_js#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
