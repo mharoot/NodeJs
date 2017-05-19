@@ -1,0 +1,116 @@
+<html>
+
+<head>
+    <title>IO Chat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+		body{
+			margin-top:30px;
+		}
+
+		#messageArea {
+			display:none;
+		}
+	</style>
+</head>
+
+
+<body>
+<div class="container">
+    <div id="userHand" class="row">
+        <div class="col-md-12">
+
+        </div>
+    </div>
+    <div id="userController" class="row">
+        <div class="col-md-12">
+            <button id="card1">Card 1</button>
+            <button id="card2">Card 2</button>
+            <button id="card3">Card 3</button>
+            <button id="card4">Card 4</button>
+            <button id="card5">Card 5</button>
+        </div>
+    </div>
+</div>
+
+<script>
+	$( function () {
+		var socket 	         = io.connect();
+		var $userController  = $('#userController');
+		var $userHand        = $('#userHand');
+		var $card1           = $('#card1');
+		var $card2           = $('#card2');
+		var $card3           = $('#card3');
+		var $card4           = $('#card4');
+		var $card5           = $('#card5');
+		var cards = [false,false,false,false,false];
+
+		$card1.submit(function (e) {
+			e.preventDefault();
+			if(!cards[0]) {
+			    socket.emit('remove card', 1);
+			    cards[0] = true;
+			}
+		});
+		$card2.submit(function (e) {
+			e.preventDefault();
+			if(!cards[1]) {
+			    socket.emit('remove card', 2);
+			    cards[1] = true;
+			}
+		});
+		$card3.submit(function (e) {
+			e.preventDefault();
+			if(!cards[2]) {
+			    socket.emit('remove card', 3);
+			    cards[2] = true;
+			}
+		});
+		$card4.submit(function (e) {
+			e.preventDefault();
+			if(!cards[3]) {
+			    socket.emit('remove card', 4);
+			    cards[3] = true;
+			}
+		});
+		$card5.submit(function (e) {
+			e.preventDefault();
+			if(!cards[4]) {
+			    socket.emit('remove card', 5);
+			    cards[4] = true;
+			}
+		});
+
+		socket.on('new game', function (data) {
+			// cards dealt append new cards for user into view
+		});
+
+		/*
+
+		// 1.User Sends a Message to server
+		
+		var $message	     = $('#message');
+		$messageForm.submit(function (e) {
+			e.preventDefault();
+			socket.emit('send message', $message.val());
+			$message.val('');
+		});
+
+		// 2. Send Message Broadcast
+        socket.on('send message', function (data) {
+            io.sockets.emit('new message', {msg: data, user: socket.username} );
+        });
+
+        // 3. Recieve Message Broadcast
+		socket.on('new message', function (data) {
+			$chat.append('<div class="well"><strong>'+data.user+': </strong>' + data.msg + '</div>');
+		});
+
+		*/
+
+	});
+	</script>
+</body>
+</html>

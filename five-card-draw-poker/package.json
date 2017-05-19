@@ -1,0 +1,35 @@
+{
+  "name": "five-card-draw-poker",
+  "version": "1.0.0",
+  "description": "Each player gets a set of five cards.  They only ever have five cards throughout the game.  There is a set of draws; each player can choose to throw away between one and all of their cards and then draw that same number of cards from the deck to replace them.  A player can also choose not to discard any of their cards during each draw.  Typically there are two draws per player so there are technicall three rounds; the final round is the reveal.  On the third round all players now have their hands comapred against each other.  The player with the best hand then wins.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mharoot/NodeJs.git"
+  },
+  "keywords": [
+    "five",
+    "card",
+    "draw",
+    "poker",
+    "node",
+    "js",
+    "javascript",
+    "socket",
+    "io",
+    "express"
+  ],
+  "author": "michael harootoonyan",
+  "license": "MIT",
+  "dependencies":{
+    "socket.io" :"*",
+    "express"   :"*"
+  },
+  "bugs": {
+    "url": "https://github.com/mharoot/NodeJs/issues"
+  },
+  "homepage": "https://github.com/mharoot/NodeJs#readme"
+}
