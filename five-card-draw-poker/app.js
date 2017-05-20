@@ -1,15 +1,19 @@
 //main
-var express = require('express');
-var app     = express();
-var server  = require('http').createServer(app);
-var io      = require('socket.io').listen(server);
-var deck = [];
-var nCards = 52;
-connections = [];
+var express     = require('express');
+var app         = express();
+var server      = require('http').createServer(app);
+var io          = require('socket.io').listen(server);
+var connections = []; // holds all user socketed connections
+var deck        = []; // holds all cards in a 52 card deck
+var nCards      = 52;
+var playerScore = []; 
+var playerTurn  = []; // holds socket id of player as key and has value
+                     // true if they had a turn for the second draw
+
+var noRoundInProgress = true;
+
 server.listen(process.env.PORT || 3000);
-
 app.use(express.static('public'));
-
 
 
 
@@ -81,7 +85,7 @@ app.get('/shuffle-deck', function (req, res) {
             '7c','7d','7h','7s',
             '8c','8d','8h','8s',
             '9c','9d','9h','9s',
-            '10c','10d','10h','10s',
+            'tc','td','th','ts',
             'jc','jd','jh','js',
             'qc','qd','qh','qs',
             'kc','kd','kh','ks'
@@ -94,7 +98,7 @@ app.get('/shuffle-deck', function (req, res) {
     res.end();
 });
 
-// start a new game after each round
+// start a new game after each round not using for program
 app.get('/new-game-true-false-implementation', function (req, res) {
     nCards = 52;
     deck['1c'] = false; // ace of clover
@@ -133,10 +137,10 @@ app.get('/new-game-true-false-implementation', function (req, res) {
     deck['9d'] = false; // 9 of diamond
     deck['9h'] = false; // 9 of heart
     deck['9s'] = false; // 9 of spade
-    deck['10c'] = false; // 10 of clover
-    deck['10d'] = false; // 10 of diamond
-    deck['10h'] = false; // 10 of heart
-    deck['10s'] = false; // 10 of spade
+    deck['tc'] = false; // 10 of clover
+    deck['td'] = false; // 10 of diamond
+    deck['th'] = false; // 10 of heart
+    deck['ts'] = false; // 10 of spade
     deck['jc'] = false; // jack of clover
     deck['jd'] = false; // jack of diamond
     deck['jh'] = false; // jack of heart
@@ -151,18 +155,6 @@ app.get('/new-game-true-false-implementation', function (req, res) {
     deck['ks'] = false; // king of spade
     res.send("new game");
 });
-
-function shuffleCard(res, shuffleDeck) {
-    var timeStamp = Math.floor(Date.now() / 1000);
-    var a = Math.floor(Math.random()*10000);
-    var b = Math.floor(Math.random()*10000);
-    var primeNum = 19;
-    var randomHashIndex = (((a*timeStamp)+ b)%primeNum)%deck.length;
-    var card = deck.splice(randomHashIndex, 1); // remove 1 at random position
-    deck.push(card[0]);
-    res.write("timestamp: " + timeStamp+", random hash index: "+randomHashIndex+", card: "+card[0]);
-
-}
 
 
 // randomized dealing of cards using a timestamp and hash to replicate true
@@ -193,7 +185,6 @@ app.get('/deal-cards', function(req, res) {
 
 });
 
-
 /*
 --------------------------------------------------------------------------------
                     END OF testing routing functions
@@ -217,46 +208,421 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html')
 });
 
+
+
+
 // on connection
 io.sockets.on('connection', function (socket) {
+
+    if(connections.length == 4) { // no more than 4 players allowed on server
+        //reject connection
+        console.log('too many players trying to get on server');
+        return 1;
+    }
     connections.push(socket);
+    playerScore[socket.id] = 0;
     console.log('Connected: %s sockets connected', connections.length);
 
-    if (connections.length === 2) {
-        io.sockets.emit('new game', function () { //when using io.sockets.emit its broadcasting.
+    // new hand for user, draw 5 cards from deck for a user
+    if(noRoundInProgress && connections.length > 1) {
+        newGame();
+        noRoundInProgress = false;
+        for(i = connections.length; i > 0; i--) {
+            var userSocket = connections[connections.length-i];
+            userSocket.emit('new hand', {userHand: deck.splice(0,5),
+                playerScore: playerScore[userSocket.id]});
+            playerTurn[userSocket.id] = false;
+        }
+    } 
+    
 
-        });
-        connections[0].emit('new hand' function)
-    } else if (connections.length === 3) {
-         io.sockets.emit('new game', function () {
 
-         });
-     } else if (connections.length === 4) {
-        io.sockets.emit('new game', function () {
 
-        });
-     }
+    //replace old cards if any are discarded
+    socket.on('remove cards', function(data) {
+        var roundIsFinished = true;
+        //console.log("socket id:"+socket.id);
+        if(playerTurn[socket.id]) {return 0;}
+        else {playerTurn[socket.id] = true;}
+
+        var nRemovedCards = 0;
+        var i = 0;
+        var newHand = [];
+        for(card in data.userHand) {
+            if(data.hand[i]) // push old card back in new hand
+                newHand.push(deck.splice(0,1));
+            else // push old card back in new hand
+                newHand.push(data.userHand[card]);
+            i++;
+        }
+        var handStrength = getHandStrength(newHand);
+        playerScore[socket.id] += handStrength;
+        socket.emit('new hand', {userHand: newHand, playerScore: playerScore[socket.id]});
+        
+        
+
+        for(key in playerTurn) 
+            if (!playerTurn[key])// a player has not yet had a turn
+                roundIsFinished = false;
+        
+        if (roundIsFinished) {
+            // 1. update score of winner if there is one
+            // if there is a draw don't update anyones score.
+            // 2.start new game happens instantly.
+            
+            noRoundInProgress = true;
+            newGame();
+            for(key in playerTurn) 
+                playerTurn[key] = false;
+
+            for(i = connections.length; i > 0; i--) {
+                var userSocket = connections[connections.length-i];
+                userSocket.emit('new hand', {userHand: deck.splice(0,5),
+                    playerScore: playerScore[userSocket.id]});
+            }
+        }
+    });
+
+
+
+    // util functions
+
+    function getHandStrength(playerHand) {
+
+    var cKQJ10 = playerHand.indexOf("kc")  > -1
+                && playerHand.indexOf("qc")  > -1
+                && playerHand.indexOf("jc")  > -1
+                && playerHand.indexOf("tc") > -1;
+    var dKQJ10 = playerHand.indexOf("kd")  > -1
+                && playerHand.indexOf("qd")  > -1
+                && playerHand.indexOf("jd")  > -1
+                && playerHand.indexOf("td") > -1;
+    var hKQJ10 = playerHand.indexOf("kh")  > -1
+                && playerHand.indexOf("qh")  > -1
+                && playerHand.indexOf("jh")  > -1
+                && playerHand.indexOf("th") > -1;
+    var sKQJ10 = playerHand.indexOf("ks")  > -1
+                && playerHand.indexOf("qs")  > -1
+                && playerHand.indexOf("js")  > -1
+                && playerHand.indexOf("ts") > -1
+
+
+    var isRoyalFlush = (playerHand.indexOf("1c")  > -1 && cKQJ10)
+                        ||(playerHand.indexOf("1d")  > -1 && dKQJ10)
+                        ||(playerHand.indexOf("1h")  > -1 && hKQJ10)
+                        ||(playerHand.indexOf("1s")  > -1 && sKQJ10);
+
+    var isStraightFlush = (cKQJ10 && playerHand.indexOf("9c") > -1)
+                            ||(playerHand.indexOf("qc")  > -1
+                            && playerHand.indexOf("jc")  > -1
+                            && playerHand.indexOf("tc") > -1
+                            && playerHand.indexOf("9c")  > -1
+                            && playerHand.indexOf("8c")  > -1)
+                            ||(playerHand.indexOf("jc")  > -1
+                            && playerHand.indexOf("tc") > -1
+                            && playerHand.indexOf("9c")  > -1
+                            && playerHand.indexOf("8c")  > -1
+                            && playerHand.indexOf("7c")  > -1)
+                            ||(playerHand.indexOf("tc") > -1
+                            && playerHand.indexOf("9c")  > -1
+                            && playerHand.indexOf("8c")  > -1
+                            && playerHand.indexOf("7c")  > -1
+                            && playerHand.indexOf("6c")  > -1)
+                            ||(playerHand.indexOf("9c")  > -1
+                            && playerHand.indexOf("8c")  > -1
+                            && playerHand.indexOf("7c")  > -1
+                            && playerHand.indexOf("6c")  > -1
+                            && playerHand.indexOf("5c") > -1)
+                            ||(playerHand.indexOf("8c")  > -1
+                            && playerHand.indexOf("7c")  > -1
+                            && playerHand.indexOf("6c")  > -1
+                            && playerHand.indexOf("5c")  > -1
+                            && playerHand.indexOf("4c") > -1)
+                            ||(playerHand.indexOf("7c")  > -1
+                            && playerHand.indexOf("6c")  > -1
+                            && playerHand.indexOf("5c")  > -1
+                            && playerHand.indexOf("4c")  > -1
+                            && playerHand.indexOf("3c") > -1)
+                            ||(playerHand.indexOf("6c")  > -1
+                            && playerHand.indexOf("5c")  > -1
+                            && playerHand.indexOf("4c")  > -1
+                            && playerHand.indexOf("3c")  > -1
+                            && playerHand.indexOf("2c") > -1)
+                            ||(playerHand.indexOf("5c")  > -1
+                            && playerHand.indexOf("4c")  > -1
+                            && playerHand.indexOf("3c")  > -1
+                            && playerHand.indexOf("2c")  > -1
+                            && playerHand.indexOf("1c") > -1)
+                            ||(dKQJ10 && playerHand.indexOf("9d") > -1)
+                            ||(playerHand.indexOf("qd")  > -1
+                            && playerHand.indexOf("jd")  > -1
+                            && playerHand.indexOf("td") > -1
+                            && playerHand.indexOf("9d")  > -1
+                            && playerHand.indexOf("8d")  > -1)
+                            ||(playerHand.indexOf("jd")  > -1
+                            && playerHand.indexOf("td") > -1
+                            && playerHand.indexOf("9d")  > -1
+                            && playerHand.indexOf("8d")  > -1
+                            && playerHand.indexOf("7d")  > -1)
+                            ||(playerHand.indexOf("td") > -1
+                            && playerHand.indexOf("9d")  > -1
+                            && playerHand.indexOf("8d")  > -1
+                            && playerHand.indexOf("7d")  > -1
+                            && playerHand.indexOf("6d")  > -1)
+                            ||(playerHand.indexOf("9d")  > -1
+                            && playerHand.indexOf("8d")  > -1
+                            && playerHand.indexOf("7d")  > -1
+                            && playerHand.indexOf("6d")  > -1
+                            && playerHand.indexOf("5d") > -1)
+                            ||(playerHand.indexOf("8d")  > -1
+                            && playerHand.indexOf("7d")  > -1
+                            && playerHand.indexOf("6d")  > -1
+                            && playerHand.indexOf("5d")  > -1
+                            && playerHand.indexOf("4d") > -1)
+                            ||(playerHand.indexOf("7d")  > -1
+                            && playerHand.indexOf("6d")  > -1
+                            && playerHand.indexOf("5d")  > -1
+                            && playerHand.indexOf("4d")  > -1
+                            && playerHand.indexOf("3d") > -1)
+                            ||(playerHand.indexOf("6d")  > -1
+                            && playerHand.indexOf("5d")  > -1
+                            && playerHand.indexOf("4d")  > -1
+                            && playerHand.indexOf("3d")  > -1
+                            && playerHand.indexOf("2d") > -1)
+                            ||(playerHand.indexOf("5d")  > -1
+                            && playerHand.indexOf("4d")  > -1
+                            && playerHand.indexOf("3d")  > -1
+                            && playerHand.indexOf("2d")  > -1
+                            && playerHand.indexOf("1d") > -1)
+                            ||(hKQJ10 && playerHand.indexOf("9h") > -1)
+                            ||(playerHand.indexOf("qh")  > -1
+                            && playerHand.indexOf("jh")  > -1
+                            && playerHand.indexOf("th") > -1
+                            && playerHand.indexOf("9h")  > -1
+                            && playerHand.indexOf("8h")  > -1)
+                            ||(playerHand.indexOf("jh")  > -1
+                            && playerHand.indexOf("th") > -1
+                            && playerHand.indexOf("9h")  > -1
+                            && playerHand.indexOf("8h")  > -1
+                            && playerHand.indexOf("7h")  > -1)
+                            ||(playerHand.indexOf("th") > -1
+                            && playerHand.indexOf("9h")  > -1
+                            && playerHand.indexOf("8h")  > -1
+                            && playerHand.indexOf("7h")  > -1
+                            && playerHand.indexOf("6h")  > -1)
+                            ||(playerHand.indexOf("9h")  > -1
+                            && playerHand.indexOf("8h")  > -1
+                            && playerHand.indexOf("7h")  > -1
+                            && playerHand.indexOf("6h")  > -1
+                            && playerHand.indexOf("5h") > -1)
+                            ||(playerHand.indexOf("8h")  > -1
+                            && playerHand.indexOf("7h")  > -1
+                            && playerHand.indexOf("6h")  > -1
+                            && playerHand.indexOf("5h")  > -1
+                            && playerHand.indexOf("4h") > -1)
+                            ||(playerHand.indexOf("7h")  > -1
+                            && playerHand.indexOf("6h")  > -1
+                            && playerHand.indexOf("5h")  > -1
+                            && playerHand.indexOf("4h")  > -1
+                            && playerHand.indexOf("3h") > -1)
+                            ||(playerHand.indexOf("6h")  > -1
+                            && playerHand.indexOf("5h")  > -1
+                            && playerHand.indexOf("4h")  > -1
+                            && playerHand.indexOf("3h")  > -1
+                            && playerHand.indexOf("2h") > -1)
+                            ||(playerHand.indexOf("5h")  > -1
+                            && playerHand.indexOf("4h")  > -1
+                            && playerHand.indexOf("3h")  > -1
+                            && playerHand.indexOf("2h")  > -1
+                            && playerHand.indexOf("1h") > -1)
+                            ||(sKQJ10 && playerHand.indexOf("9s") > -1)
+                            ||(playerHand.indexOf("qs")  > -1
+                            && playerHand.indexOf("js")  > -1
+                            && playerHand.indexOf("ts") > -1
+                            && playerHand.indexOf("9s")  > -1
+                            && playerHand.indexOf("8s")  > -1)
+                            ||(playerHand.indexOf("js")  > -1
+                            && playerHand.indexOf("ts") > -1
+                            && playerHand.indexOf("9s")  > -1
+                            && playerHand.indexOf("8s")  > -1
+                            && playerHand.indexOf("7s")  > -1)
+                            ||(playerHand.indexOf("ts") > -1
+                            && playerHand.indexOf("9s")  > -1
+                            && playerHand.indexOf("8s")  > -1
+                            && playerHand.indexOf("7s")  > -1
+                            && playerHand.indexOf("6s")  > -1)
+                            ||(playerHand.indexOf("9s")  > -1
+                            && playerHand.indexOf("8s")  > -1
+                            && playerHand.indexOf("7s")  > -1
+                            && playerHand.indexOf("6s")  > -1
+                            && playerHand.indexOf("5s") > -1)
+                            ||(playerHand.indexOf("8s")  > -1
+                            && playerHand.indexOf("7s")  > -1
+                            && playerHand.indexOf("6s")  > -1
+                            && playerHand.indexOf("5s")  > -1
+                            && playerHand.indexOf("4s") > -1)
+                            ||(playerHand.indexOf("7s")  > -1
+                            && playerHand.indexOf("6s")  > -1
+                            && playerHand.indexOf("5s")  > -1
+                            && playerHand.indexOf("4s")  > -1
+                            && playerHand.indexOf("3s") > -1)
+                            ||(playerHand.indexOf("6s")  > -1
+                            && playerHand.indexOf("5s")  > -1
+                            && playerHand.indexOf("4s")  > -1
+                            && playerHand.indexOf("3s")  > -1
+                            && playerHand.indexOf("2s") > -1)
+                            ||(playerHand.indexOf("5s")  > -1
+                            && playerHand.indexOf("4s")  > -1
+                            && playerHand.indexOf("3s")  > -1
+                            && playerHand.indexOf("2s")  > -1
+                            && playerHand.indexOf("1s") > -1); 
+    
+    var isFullHouse = false;
+    var isFourOfAKind = false;
+    var isFlush = true;
+    var isStraight = false;
+    var isThreeOfAKind = false;
+    var isTwoPair = false;
+    var isOnePair = false;
+    var visited = [false,false,false,false,false];
+    var pairs = [];
+    //init pairs
+    for(var i = 0; i < 5; i++) {
+      var key = playerHand[i][0];
+      pairs[key] = 1;
+    }
+
+    for(var i = 0; i < 5; i++) {
+        var key = playerHand[i][0];
+        for(var j = i+1; j < 5; j++) {
+            if( !visited[i] && key == playerHand[j][0]) {
+                pairs[key]++;
+                visited[i] = true;
+            }
+        }
+    }
+
+    var onePairCount = 0
+    for(var i = 0; i < 5; i++) {
+        if (pairs[i] == 2) {
+            onePairCount++;
+            isOnePair = true;
+        } else if(pairs[i] == 3) {
+            isThreeOfAKind = true;
+        } else if (pairs[i] == 4) {
+            isFourOfAKind = true;
+        }
+    }
+
+    if (onePairCount == 2) {
+        isTwoPair = true;
+    }
+    isFullHouse = isOnePair && isThreeOfAKind;
+
+    var key = playerHand[0][1];
+    for(var i = 1; i < 5; i++) {
+        if(key != playerHand[i][1]) {
+            isFlush = false;
+            break;
+        }
+        key = playerHand[i][1];
+    }
+
+    var sortedHand = playerHand.sort();
+    var key = sortedHand[0][0];
+    for(var i = 1; i < 5; i++) {
+        if (sortedHand[i][0] > key) {
+            isStraight = true;
+        } else {
+            isStraight = false;
+            break;
+        }
+        key = sortedHand[i][0];
+    }
+
+    
+    if (isRoyalFlush) 
+        return 9;
+    if (isStraightFlush)
+        return 8;
+    if (isFourOfAKind)
+        return 7;
+    if (isFullHouse)
+        return 6;
+    if (isFlush)
+        return 5;
+    if (isStraight)
+        return 4;
+    if (isThreeOfAKind)
+        return 3;
+    if (isTwoPair)
+        return 2;
+    if (isOnePair)
+        return 1;
+    
+    return 0;
+
+}
+
+    function newGame() { // begins new game and shuffles deck
+        deck = ['1c','1d','1h','1s',
+                '2c','2d','2h','2s',
+                '3c','3d','3h','3s',
+                '4c','4d','4h','4s',
+                '5c','5d','5h','5s',
+                '6c','6d','6h','6s',
+                '7c','7d','7h','7s',
+                '8c','8d','8h','8s',
+                '9c','9d','9h','9s',
+                'tc','td','th','ts',
+                'jc','jd','jh','js',
+                'qc','qd','qh','qs',
+                'kc','kd','kh','ks'
+        ]; // standard 52 card deck no jokers 
+
+        for(i = 0; i < 51; i++) {
+            shuffleCard();
+        }
+
+    }
+
+    function shuffleCard() { // shuffle one card at a time
+        var timeStamp = Math.floor(Date.now() / 1000);
+        var a = Math.floor(Math.random()*10000);
+        var b = Math.floor(Math.random()*10000);
+        var primeNum = 19;
+        var randomHashIndex = (((a*timeStamp)+ b)%primeNum)%deck.length;
+        var card = deck.splice(randomHashIndex, 1); // remove 1 at random position
+        deck.push(card[0]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Disconnect
     socket.on('disconnect', function (data) {
-        connections.splice(connections.indexOf(socket), 1);
+        var removedSocket = connections.splice(connections.indexOf(socket), 1);
+        delete playerTurn[removedSocket.id];
+        delete playerScore[removedSocket.id];
         console.log('Disconnected: %s sockets connected', connections.length);
+        if (connections.length < 2)
+            noRoundInProgress = true;
     });
-
-
-    // Send Player Movement to other clients in the server.
-    socket.on('new player', function (pos, color) {
-        io.sockets.emit('new player pos', pos , color);
-    });
-
-    // updating a player position
-    socket.on('update player pos', function (oldPos, newPos, color) {
-        io.sockets.emit('a player moved', oldPos, newPos, color);
-    });
-
-    socket.on('tag your it', function (oldPos, newPos) {
-        io.sockets.emit('swap colors', oldPos, newPos);
-    });
-
 });
 
 /*
@@ -264,3 +630,56 @@ io.sockets.on('connection', function (socket) {
                     END OF SocketIO On Connection
 --------------------------------------------------------------------------------
 */
+//reference 
+/*
+
+// 1.User Sends a Message to server
+
+//client side code
+var $message	     = $('#message');
+$messageForm.submit(function (e) {
+    e.preventDefault();
+    socket.emit('send message', $message.val());
+    $message.val('');
+});
+//end of client side code
+
+
+// 2. Send Message Broadcast
+
+//server side code
+socket.on('send message', function (data) {
+    io.sockets.emit('new message', {msg: data, user: socket.username} );
+});
+//end of server side code
+
+
+// 3. Recieve Message Broadcast
+//client side code
+socket.on('new message', function (data) {
+    $chat.append('<div class="well"><strong>'+data.user+': </strong>' + data.msg + '</div>');
+});
+//end of client side code
+
+*/
+
+
+
+
+
+
+/*
+--------------------------------------------------------------------------------
+                    Utilities
+--------------------------------------------------------------------------------
+*/
+function shuffleCard(res, shuffleDeck) {
+    var timeStamp = Math.floor(Date.now() / 1000);
+    var a = Math.floor(Math.random()*10000);
+    var b = Math.floor(Math.random()*10000);
+    var primeNum = 19;
+    var randomHashIndex = (((a*timeStamp)+ b)%primeNum)%deck.length;
+    var card = deck.splice(randomHashIndex, 1); // remove 1 at random position
+    deck.push(card[0]);
+    res.write("timestamp: " + timeStamp+", random hash index: "+randomHashIndex+", card: "+card[0]);
+}

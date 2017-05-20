@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>IO Chat</title>
+    <title>Five-Card-Draw-Poker</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -26,65 +26,96 @@
     </div>
     <div id="userController" class="row">
         <div class="col-md-12">
-            <button id="card1">Card 1</button>
-            <button id="card2">Card 2</button>
-            <button id="card3">Card 3</button>
-            <button id="card4">Card 4</button>
-            <button id="card5">Card 5</button>
-        </div>
+			<h2>Select the cards you want to throw away!</h2>
+            <button class="btn btn-primary" id="card1">Card 1</button>
+            <button class="btn btn-primary" id="card2">Card 2</button>
+            <button class="btn btn-primary" id="card3">Card 3</button>
+            <button class="btn btn-primary" id="card4">Card 4</button>
+            <button class="btn btn-primary" id="card5">Card 5</button>
+			</br></br>
+			<button class="btn btn-success" id="userSubmit">submit</button>
+			</br></br>
+			<p>player score:</p>
+			<p id="playerScore">0</p>
+		</div>
     </div>
 </div>
 
 <script>
+
+	var cards = [false,false,false,false,false]; // cards discarded by client
+
+	// utility function that prepares cards to be thrown away
+	function throwAwayCard(index, $card) {
+		$card.removeClass();
+		if(!cards[index]) {
+			$card.toggleClass("btn btn-warning");
+			cards[index] = true;
+		} else {
+			$card.toggleClass("btn btn-primary");
+			cards[index] = false;
+		}
+	}
+
+	// main function
 	$( function () {
 		var socket 	         = io.connect();
 		var $userController  = $('#userController');
 		var $userHand        = $('#userHand');
-		var $card1           = $('#card1');
-		var $card2           = $('#card2');
-		var $card3           = $('#card3');
-		var $card4           = $('#card4');
-		var $card5           = $('#card5');
-		var cards = [false,false,false,false,false];
+		var $userSubmit      = $('#userSubmit')
+		var $playerScore     = $('#playerScore');
+		var $card1 = $('#card1'), $card2 = $('#card2'), $card3 = $('#card3'),
+			$card4 = $('#card4'), $card5 = $('#card5');
 
-		$card1.submit(function (e) {
+		$card1.click(function (e) {
 			e.preventDefault();
-			if(!cards[0]) {
-			    socket.emit('remove card', 1);
-			    cards[0] = true;
-			}
+			throwAwayCard(0, $(this));
 		});
-		$card2.submit(function (e) {
+		 $card2.click(function (e) {
 			e.preventDefault();
-			if(!cards[1]) {
-			    socket.emit('remove card', 2);
-			    cards[1] = true;
-			}
+			throwAwayCard(1, $(this));			
 		});
-		$card3.submit(function (e) {
+		 $card3.click(function (e) {
 			e.preventDefault();
-			if(!cards[2]) {
-			    socket.emit('remove card', 3);
-			    cards[2] = true;
-			}
+			throwAwayCard(2, $(this));			
 		});
-		$card4.submit(function (e) {
+		 $card4.click(function (e) {
 			e.preventDefault();
-			if(!cards[3]) {
-			    socket.emit('remove card', 4);
-			    cards[3] = true;
-			}
+			throwAwayCard(3, $(this));	
 		});
-		$card5.submit(function (e) {
+		 $card5.click(function (e) {
 			e.preventDefault();
-			if(!cards[4]) {
-			    socket.emit('remove card', 5);
-			    cards[4] = true;
-			}
+			throwAwayCard(4, $(this));			
+		});
+		
+		//on submit
+		$userSubmit.click(function (e) {
+			e.preventDefault();
+			socket.emit('remove cards', {hand: cards, 
+				userHand: [$card1.text(), $card2.text(),$card3.text(),$card4.text(),$card5.text()]});
+
 		});
 
-		socket.on('new game', function (data) {
+/*
+socket.on('fromClient', function(data) { // listen for fromClient message
+      console.log('Received ' + data.id + ' from client');
+   });
+*/
+		socket.on('new hand', function (data) {
 			// cards dealt append new cards for user into view
+			$playerScore.empty();
+			$playerScore.append(data.playerScore);
+			console.log('Received poker hand' + data.userHand+ ' from client');
+			 $card1.empty();$card2.empty();$card3.empty();$card4.empty();$card5.empty();
+			 $card1.append(data.userHand[0]);$card2.append(data.userHand[1]);
+			 $card3.append(data.userHand[2]);$card4.append(data.userHand[3]);
+			 $card5.append(data.userHand[4]);
+
+			 cards = [true,true,true,true,true];
+			 throwAwayCard(0,$card1);throwAwayCard(1,$card2);
+			 throwAwayCard(2,$card3);throwAwayCard(3,$card4);
+			 throwAwayCard(4,$card5);
+			 cards = [false,false,false,false,false];
 		});
 
 		/*
@@ -92,7 +123,7 @@
 		// 1.User Sends a Message to server
 		
 		var $message	     = $('#message');
-		$messageForm.submit(function (e) {
+		$messageForm.click(function (e) {
 			e.preventDefault();
 			socket.emit('send message', $message.val());
 			$message.val('');
