@@ -553,7 +553,7 @@ io.sockets.on('connection', function (socket) {
 
     var key = playerHand[0][1];
     console.log(key == playerHand[1][1] && key == playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1])
-    if(key && playerHand[1][1] || key && playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1]) 
+    if(key && playerHand[1][1] && key && playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1]) 
             isFlush = true;
 
 
