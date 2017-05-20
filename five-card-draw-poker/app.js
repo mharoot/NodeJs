@@ -304,8 +304,34 @@ io.sockets.on('connection', function (socket) {
                 case 'j':
                     convertedHand.push(11);
                     break;
-                default:
-                    convertedHand.push(hand[i][0]);
+                case '9':
+                    convertedHand.push(9);
+                    break;
+                case '8':
+                    convertedHand.push(8);
+                    break;
+                case '7':
+                    convertedHand.push(7);
+                    break;
+                case '6':
+                    convertedHand.push(6);
+                    break;
+                case '5':
+                    convertedHand.push(5);
+                    break;
+                case '4':
+                    convertedHand.push(4);
+                    break;
+                case '3':
+                    convertedHand.push(3);
+                    break;
+                case '2':
+                    convertedHand.push(2);
+                    break;
+                case '1':
+                    convertedHand.push(1);
+                    break;
+
 
             }
         }
@@ -535,6 +561,7 @@ io.sockets.on('connection', function (socket) {
     var onePairCount = 0;
     i = 0;
     for(key in pairs)  {
+        console.log(pairs[key]);
         if (pairs[key] == 2) {
             onePairCount++;
             isOnePair = true;
@@ -546,27 +573,30 @@ io.sockets.on('connection', function (socket) {
         i++;
     }
 
+    console.log("is three of kind"+isThreeOfAKind)
+
     if (onePairCount == 2) {
         isTwoPair = true;
     }
     isFullHouse = isOnePair && isThreeOfAKind;
 
     var key = playerHand[0][1];
-    console.log(key == playerHand[1][1] && key == playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1])
-    if(key && playerHand[1][1] && key && playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1]) 
+    if(key == playerHand[1][1] && key == playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1]) 
             isFlush = true;
 
 
     var hand = convertForSort(playerHand);
-    sortedHand = hand.sort();
-    console.log(sortedHand);
-    var key = sortedHand[0][0];
+    sortedHand = hand.sort(function(a, b) {
+                    return a - b;
+                 });
+    console.log("sorted hand: " +sortedHand);
+    var key = sortedHand[0];
     for(var i = 1; i < 5; i++) {
-        if (sortedHand[i][0] == key || sortedHand[i][0] > key + 1) {
+        if (sortedHand[i] == key || sortedHand[i] > key + 1) {
             isStraight = false;
             break;
         }
-        key = sortedHand[i][0];
+        key = sortedHand[i];
     }
 
     
