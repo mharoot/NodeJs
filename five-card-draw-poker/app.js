@@ -305,7 +305,7 @@ io.sockets.on('connection', function (socket) {
                     convertedHand.push(11);
                     break;
                 default:
-                    convertedHand.push(hand[i]);
+                    convertedHand.push(hand[i][0]);
 
             }
         }
@@ -526,7 +526,7 @@ io.sockets.on('connection', function (socket) {
         }
     }
 
-    var onePairCount = 0
+    var onePairCount = 0;
     for(var i = 0; i < 5; i++) {
         if (pairs[i] == 2) {
             onePairCount++;
@@ -554,9 +554,10 @@ io.sockets.on('connection', function (socket) {
 
     var hand = convertForSort(playerHand);
     sortedHand = hand.sort();
+    console.log(sortedHand);
     var key = sortedHand[0][0];
     for(var i = 1; i < 5; i++) {
-        if (sortedHand[i][0] <= key) {
+        if (sortedHand[i][0] == key || sortedHand[i][0] > key + 1) {
             isStraight = false;
             break;
         }
