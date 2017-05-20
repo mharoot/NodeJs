@@ -511,31 +511,39 @@ io.sockets.on('connection', function (socket) {
     var visited = [false,false,false,false,false];
     var pairs = [];
     //init pairs
+    var hand = convertForSort(playerHand);
     for(var i = 0; i < 5; i++) {
-      var key = playerHand[i][0];
+      var key = hand[i];
+      if(pairs[key] != 1)
       pairs[key] = 1;
     }
 
-    for(var i = 0; i < 5; i++) {
-        var key = playerHand[i][0];
+        
+
+
+    var i = 0;
+    for(key in pairs) {
         for(var j = i+1; j < 5; j++) {
-            if( !visited[i] && key == playerHand[j][0]) {
+            if( !visited[i] && playerHand[i][0] == playerHand[j][0]) {
                 pairs[key]++;
                 visited[i] = true;
             }
         }
+        i++;
     }
 
-    var onePairCount = 0;
-    for(var i = 0; i < 5; i++) {
-        if (pairs[i] == 2) {
+    var onePairCount = 1;
+    i = 0;
+    for(key in pairs)  {
+        if (pairs[key] == 2) {
             onePairCount++;
             isOnePair = true;
-        } else if(pairs[i] == 3) {
+        } else if(pairs[key] == 3) {
             isThreeOfAKind = true;
-        } else if (pairs[i] == 4) {
+        } else if (pairs[key] == 4) {
             isFourOfAKind = true;
         }
+        i++;
     }
 
     if (onePairCount == 2) {
