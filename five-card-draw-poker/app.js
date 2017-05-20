@@ -287,6 +287,30 @@ io.sockets.on('connection', function (socket) {
 
     // util functions
 
+    function convertForSort(playerHand) {
+        var convertedHand = [];
+        var hand = [playerHand[0][0],playerHand[1][0],playerHand[2][0],playerHand[3][0],playerHand[4][0]]
+        for(var i = 0; i < hand.length; i++) {
+            switch(hand[i]) {
+                case 't': 
+                    convertedHand.push(10);
+                    break;
+                case 'k':
+                    convertedHand.push(13);
+                    break;
+                case 'q':
+                    convertedHand.push(12);
+                    break;
+                case 'j':
+                    convertedHand.push(11);
+                    break;
+                default:
+                    convertedHand.push(hand[i]);
+
+            }
+        }
+        return convertedHand;
+    }
     function getHandStrength(playerHand) {
 
     var cKQJ10 = playerHand.indexOf("kc")  > -1
@@ -480,7 +504,7 @@ io.sockets.on('connection', function (socket) {
     var isFullHouse = false;
     var isFourOfAKind = false;
     var isFlush = true;
-    var isStraight = false;
+    var isStraight = true;
     var isThreeOfAKind = false;
     var isTwoPair = false;
     var isOnePair = false;
@@ -528,12 +552,11 @@ io.sockets.on('connection', function (socket) {
         key = playerHand[i][1];
     }
 
-    var sortedHand = playerHand.sort();
+    var hand = convertForSort(playerHand);
+    sortedHand = hand.sort();
     var key = sortedHand[0][0];
     for(var i = 1; i < 5; i++) {
-        if (sortedHand[i][0] > key) {
-            isStraight = true;
-        } else {
+        if (sortedHand[i][0] <= key) {
             isStraight = false;
             break;
         }
