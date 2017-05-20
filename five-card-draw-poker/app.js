@@ -503,7 +503,7 @@ io.sockets.on('connection', function (socket) {
     
     var isFullHouse = false;
     var isFourOfAKind = false;
-    var isFlush = true;
+    var isFlush = false;
     var isStraight = true;
     var isThreeOfAKind = false;
     var isTwoPair = false;
@@ -532,7 +532,7 @@ io.sockets.on('connection', function (socket) {
         i++;
     }
 
-    var onePairCount = 1;
+    var onePairCount = 0;
     i = 0;
     for(key in pairs)  {
         if (pairs[key] == 2) {
@@ -552,13 +552,10 @@ io.sockets.on('connection', function (socket) {
     isFullHouse = isOnePair && isThreeOfAKind;
 
     var key = playerHand[0][1];
-    for(var i = 1; i < 5; i++) {
-        if(key != playerHand[i][1]) {
-            isFlush = false;
-            break;
-        }
-        key = playerHand[i][1];
-    }
+    console.log(key == playerHand[1][1] && key == playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1])
+    if(key && playerHand[1][1] || key && playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1]) 
+            isFlush = true;
+
 
     var hand = convertForSort(playerHand);
     sortedHand = hand.sort();
