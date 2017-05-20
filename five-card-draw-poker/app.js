@@ -250,11 +250,12 @@ io.sockets.on('connection', function (socket) {
         var newHand = [];
         for(card in data.userHand) {
             if(data.hand[i]) // push old card back in new hand
-                newHand.push(deck.splice(0,1));
+                newHand.push(deck.splice(0,1)[0]);
             else // push old card back in new hand
                 newHand.push(data.userHand[card]);
             i++;
         }
+        console.log(newHand);
         var handStrength = getHandStrength(newHand);
         playerScore[socket.id] += handStrength;
         socket.emit('new hand', {userHand: newHand, playerScore: playerScore[socket.id]});
@@ -286,7 +287,38 @@ io.sockets.on('connection', function (socket) {
 
 
     // util functions
-
+    function mergeSort(arr)
+    {
+        if (arr.length < 2)
+            return arr;
+    
+        var middle = Math.floor(arr.length / 2);
+        var left   = arr.slice(0, middle);
+        var right  = arr.slice(middle, arr.length);
+    
+        return merge(mergeSort(left), mergeSort(right));
+    }
+    
+    function merge(left, right)
+    {
+        var result = [];
+    
+        while (left.length && right.length) {
+            if (left[0] <= right[0]) {
+                result.push(left.shift());
+            } else {
+                result.push(right.shift());
+            }
+        }
+    
+        while (left.length)
+            result.push(left.shift());
+    
+        while (right.length)
+            result.push(right.shift());
+    
+        return result;
+    }
     function convertForSort(playerHand) {
         var convertedHand = [];
         var hand = [playerHand[0][0],playerHand[1][0],playerHand[2][0],playerHand[3][0],playerHand[4][0]]
@@ -586,9 +618,8 @@ io.sockets.on('connection', function (socket) {
 
 
     var hand = convertForSort(playerHand);
-    sortedHand = hand.sort(function(a, b) {
-                    return a - b;
-                 });
+    var sortedHand = mergeSort(hand);
+
     console.log("sorted hand: " +sortedHand);
     var key = sortedHand[0];
     for(var i = 1; i < 5; i++) {
