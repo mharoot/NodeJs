@@ -584,7 +584,7 @@ io.sockets.on('connection', function (socket) {
         for(var j = i+1; j < 5; j++) {
             if( !visited[i] && playerHand[i][0] == playerHand[j][0]) {
                 pairs[key]++;
-                visited[i] = true;
+                //visited[i] = true;
             }
         }
         i++;
