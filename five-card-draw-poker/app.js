@@ -30,6 +30,347 @@ app.get('/test', function (request, response) {
     response.send("<h1>test</h1>");
 });
 
+
+// hand strength test - straight
+app.get('/hand-strength-test-straight', function(req, res) {
+  // var playerHand = ['1c','2d','3c','4c','5c'];//straight passed
+  // var playerHand = ['2d','3c','4c','5c','1c']; // straight passed
+  var playerHand = ['3d','4d','2a','6c','5d']; // straight passed
+  function convertForSort(playerHand) {
+        var convertedHand = [];
+        var hand = [playerHand[0][0],playerHand[1][0],playerHand[2][0],playerHand[3][0],playerHand[4][0]]
+        for(var i = 0; i < hand.length; i++) {
+            switch(hand[i]) {
+                case 't':
+                    convertedHand.push(10);
+                    break;
+                case 'k':
+                    convertedHand.push(13);
+                    break;
+                case 'q':
+                    convertedHand.push(12);
+                    break;
+                case 'j':
+                    convertedHand.push(11);
+                    break;
+                case '9':
+                    convertedHand.push(9);
+                    break;
+                case '8':
+                    convertedHand.push(8);
+                    break;
+                case '7':
+                    convertedHand.push(7);
+                    break;
+                case '6':
+                    convertedHand.push(6);
+                    break;
+                case '5':
+                    convertedHand.push(5);
+                    break;
+                case '4':
+                    convertedHand.push(4);
+                    break;
+                case '3':
+                    convertedHand.push(3);
+                    break;
+                case '2':
+                    convertedHand.push(2);
+                    break;
+                case '1':
+                    convertedHand.push(1);
+                    break;
+
+
+            }
+        }
+        return convertedHand;
+    }
+
+         var cKQJ10 = playerHand.indexOf("kc")  > -1
+                        && playerHand.indexOf("qc")  > -1
+                        && playerHand.indexOf("jc")  > -1
+                        && playerHand.indexOf("tc") > -1;
+            var dKQJ10 = playerHand.indexOf("kd")  > -1
+                        && playerHand.indexOf("qd")  > -1
+                        && playerHand.indexOf("jd")  > -1
+                        && playerHand.indexOf("td") > -1;
+            var hKQJ10 = playerHand.indexOf("kh")  > -1
+                        && playerHand.indexOf("qh")  > -1
+                        && playerHand.indexOf("jh")  > -1
+                        && playerHand.indexOf("th") > -1;
+            var sKQJ10 = playerHand.indexOf("ks")  > -1
+                        && playerHand.indexOf("qs")  > -1
+                        && playerHand.indexOf("js")  > -1
+                        && playerHand.indexOf("ts") > -1
+
+
+            var isRoyalFlush = (playerHand.indexOf("1c")  > -1 && cKQJ10)
+                                ||(playerHand.indexOf("1d")  > -1 && dKQJ10)
+                                ||(playerHand.indexOf("1h")  > -1 && hKQJ10)
+                                ||(playerHand.indexOf("1s")  > -1 && sKQJ10);
+
+            var isStraightFlush = (cKQJ10 && playerHand.indexOf("9c") > -1)
+                                    ||(playerHand.indexOf("qc")  > -1
+                                    && playerHand.indexOf("jc")  > -1
+                                    && playerHand.indexOf("tc") > -1
+                                    && playerHand.indexOf("9c")  > -1
+                                    && playerHand.indexOf("8c")  > -1)
+                                    ||(playerHand.indexOf("jc")  > -1
+                                    && playerHand.indexOf("tc") > -1
+                                    && playerHand.indexOf("9c")  > -1
+                                    && playerHand.indexOf("8c")  > -1
+                                    && playerHand.indexOf("7c")  > -1)
+                                    ||(playerHand.indexOf("tc") > -1
+                                    && playerHand.indexOf("9c")  > -1
+                                    && playerHand.indexOf("8c")  > -1
+                                    && playerHand.indexOf("7c")  > -1
+                                    && playerHand.indexOf("6c")  > -1)
+                                    ||(playerHand.indexOf("9c")  > -1
+                                    && playerHand.indexOf("8c")  > -1
+                                    && playerHand.indexOf("7c")  > -1
+                                    && playerHand.indexOf("6c")  > -1
+                                    && playerHand.indexOf("5c") > -1)
+                                    ||(playerHand.indexOf("8c")  > -1
+                                    && playerHand.indexOf("7c")  > -1
+                                    && playerHand.indexOf("6c")  > -1
+                                    && playerHand.indexOf("5c")  > -1
+                                    && playerHand.indexOf("4c") > -1)
+                                    ||(playerHand.indexOf("7c")  > -1
+                                    && playerHand.indexOf("6c")  > -1
+                                    && playerHand.indexOf("5c")  > -1
+                                    && playerHand.indexOf("4c")  > -1
+                                    && playerHand.indexOf("3c") > -1)
+                                    ||(playerHand.indexOf("6c")  > -1
+                                    && playerHand.indexOf("5c")  > -1
+                                    && playerHand.indexOf("4c")  > -1
+                                    && playerHand.indexOf("3c")  > -1
+                                    && playerHand.indexOf("2c") > -1)
+                                    ||(playerHand.indexOf("5c")  > -1
+                                    && playerHand.indexOf("4c")  > -1
+                                    && playerHand.indexOf("3c")  > -1
+                                    && playerHand.indexOf("2c")  > -1
+                                    && playerHand.indexOf("1c") > -1)
+                                    ||(dKQJ10 && playerHand.indexOf("9d") > -1)
+                                    ||(playerHand.indexOf("qd")  > -1
+                                    && playerHand.indexOf("jd")  > -1
+                                    && playerHand.indexOf("td") > -1
+                                    && playerHand.indexOf("9d")  > -1
+                                    && playerHand.indexOf("8d")  > -1)
+                                    ||(playerHand.indexOf("jd")  > -1
+                                    && playerHand.indexOf("td") > -1
+                                    && playerHand.indexOf("9d")  > -1
+                                    && playerHand.indexOf("8d")  > -1
+                                    && playerHand.indexOf("7d")  > -1)
+                                    ||(playerHand.indexOf("td") > -1
+                                    && playerHand.indexOf("9d")  > -1
+                                    && playerHand.indexOf("8d")  > -1
+                                    && playerHand.indexOf("7d")  > -1
+                                    && playerHand.indexOf("6d")  > -1)
+                                    ||(playerHand.indexOf("9d")  > -1
+                                    && playerHand.indexOf("8d")  > -1
+                                    && playerHand.indexOf("7d")  > -1
+                                    && playerHand.indexOf("6d")  > -1
+                                    && playerHand.indexOf("5d") > -1)
+                                    ||(playerHand.indexOf("8d")  > -1
+                                    && playerHand.indexOf("7d")  > -1
+                                    && playerHand.indexOf("6d")  > -1
+                                    && playerHand.indexOf("5d")  > -1
+                                    && playerHand.indexOf("4d") > -1)
+                                    ||(playerHand.indexOf("7d")  > -1
+                                    && playerHand.indexOf("6d")  > -1
+                                    && playerHand.indexOf("5d")  > -1
+                                    && playerHand.indexOf("4d")  > -1
+                                    && playerHand.indexOf("3d") > -1)
+                                    ||(playerHand.indexOf("6d")  > -1
+                                    && playerHand.indexOf("5d")  > -1
+                                    && playerHand.indexOf("4d")  > -1
+                                    && playerHand.indexOf("3d")  > -1
+                                    && playerHand.indexOf("2d") > -1)
+                                    ||(playerHand.indexOf("5d")  > -1
+                                    && playerHand.indexOf("4d")  > -1
+                                    && playerHand.indexOf("3d")  > -1
+                                    && playerHand.indexOf("2d")  > -1
+                                    && playerHand.indexOf("1d") > -1)
+                                    ||(hKQJ10 && playerHand.indexOf("9h") > -1)
+                                    ||(playerHand.indexOf("qh")  > -1
+                                    && playerHand.indexOf("jh")  > -1
+                                    && playerHand.indexOf("th") > -1
+                                    && playerHand.indexOf("9h")  > -1
+                                    && playerHand.indexOf("8h")  > -1)
+                                    ||(playerHand.indexOf("jh")  > -1
+                                    && playerHand.indexOf("th") > -1
+                                    && playerHand.indexOf("9h")  > -1
+                                    && playerHand.indexOf("8h")  > -1
+                                    && playerHand.indexOf("7h")  > -1)
+                                    ||(playerHand.indexOf("th") > -1
+                                    && playerHand.indexOf("9h")  > -1
+                                    && playerHand.indexOf("8h")  > -1
+                                    && playerHand.indexOf("7h")  > -1
+                                    && playerHand.indexOf("6h")  > -1)
+                                    ||(playerHand.indexOf("9h")  > -1
+                                    && playerHand.indexOf("8h")  > -1
+                                    && playerHand.indexOf("7h")  > -1
+                                    && playerHand.indexOf("6h")  > -1
+                                    && playerHand.indexOf("5h") > -1)
+                                    ||(playerHand.indexOf("8h")  > -1
+                                    && playerHand.indexOf("7h")  > -1
+                                    && playerHand.indexOf("6h")  > -1
+                                    && playerHand.indexOf("5h")  > -1
+                                    && playerHand.indexOf("4h") > -1)
+                                    ||(playerHand.indexOf("7h")  > -1
+                                    && playerHand.indexOf("6h")  > -1
+                                    && playerHand.indexOf("5h")  > -1
+                                    && playerHand.indexOf("4h")  > -1
+                                    && playerHand.indexOf("3h") > -1)
+                                    ||(playerHand.indexOf("6h")  > -1
+                                    && playerHand.indexOf("5h")  > -1
+                                    && playerHand.indexOf("4h")  > -1
+                                    && playerHand.indexOf("3h")  > -1
+                                    && playerHand.indexOf("2h") > -1)
+                                    ||(playerHand.indexOf("5h")  > -1
+                                    && playerHand.indexOf("4h")  > -1
+                                    && playerHand.indexOf("3h")  > -1
+                                    && playerHand.indexOf("2h")  > -1
+                                    && playerHand.indexOf("1h") > -1)
+                                    ||(sKQJ10 && playerHand.indexOf("9s") > -1)
+                                    ||(playerHand.indexOf("qs")  > -1
+                                    && playerHand.indexOf("js")  > -1
+                                    && playerHand.indexOf("ts") > -1
+                                    && playerHand.indexOf("9s")  > -1
+                                    && playerHand.indexOf("8s")  > -1)
+                                    ||(playerHand.indexOf("js")  > -1
+                                    && playerHand.indexOf("ts") > -1
+                                    && playerHand.indexOf("9s")  > -1
+                                    && playerHand.indexOf("8s")  > -1
+                                    && playerHand.indexOf("7s")  > -1)
+                                    ||(playerHand.indexOf("ts") > -1
+                                    && playerHand.indexOf("9s")  > -1
+                                    && playerHand.indexOf("8s")  > -1
+                                    && playerHand.indexOf("7s")  > -1
+                                    && playerHand.indexOf("6s")  > -1)
+                                    ||(playerHand.indexOf("9s")  > -1
+                                    && playerHand.indexOf("8s")  > -1
+                                    && playerHand.indexOf("7s")  > -1
+                                    && playerHand.indexOf("6s")  > -1
+                                    && playerHand.indexOf("5s") > -1)
+                                    ||(playerHand.indexOf("8s")  > -1
+                                    && playerHand.indexOf("7s")  > -1
+                                    && playerHand.indexOf("6s")  > -1
+                                    && playerHand.indexOf("5s")  > -1
+                                    && playerHand.indexOf("4s") > -1)
+                                    ||(playerHand.indexOf("7s")  > -1
+                                    && playerHand.indexOf("6s")  > -1
+                                    && playerHand.indexOf("5s")  > -1
+                                    && playerHand.indexOf("4s")  > -1
+                                    && playerHand.indexOf("3s") > -1)
+                                    ||(playerHand.indexOf("6s")  > -1
+                                    && playerHand.indexOf("5s")  > -1
+                                    && playerHand.indexOf("4s")  > -1
+                                    && playerHand.indexOf("3s")  > -1
+                                    && playerHand.indexOf("2s") > -1)
+                                    ||(playerHand.indexOf("5s")  > -1
+                                    && playerHand.indexOf("4s")  > -1
+                                    && playerHand.indexOf("3s")  > -1
+                                    && playerHand.indexOf("2s")  > -1
+                                    && playerHand.indexOf("1s") > -1);
+
+            var isFullHouse = false;
+            var isFourOfAKind = false;
+            var isFlush = false;
+            var isStraight = true;
+            var isThreeOfAKind = false;
+            var isTwoPair = false;
+            var isOnePair = false;
+            var visited = [false,false,false,false,false];
+            var pairs = [];
+            //init pairs
+            var hand = convertForSort(playerHand);
+            for(var i = 0; i < 5; i++) {
+              var key = hand[i];
+              if(pairs[key] != 1)
+              pairs[key] = 1;
+            }
+
+
+
+
+            var i = 0;
+            for(key in pairs) {
+                for(var j = i+1; j < 5; j++) {
+                    if( !visited[i] && playerHand[i][0] == playerHand[j][0]) {
+                        pairs[key]++;
+                        //visited[i] = true;
+                    }
+                }
+                i++;
+            }
+
+            var onePairCount = 0;
+            i = 0;
+            for(key in pairs)  {
+                console.log(pairs[key]);
+                if (pairs[key] == 2) {
+                    onePairCount++;
+                    isOnePair = true;
+                } else if(pairs[key] == 3) {
+                    isThreeOfAKind = true;
+                } else if (pairs[key] == 4) {
+                    isFourOfAKind = true;
+                }
+                i++;
+            }
+
+            console.log("is three of kind"+isThreeOfAKind)
+
+            if (onePairCount == 2) {
+                isTwoPair = true;
+            }
+            isFullHouse = isOnePair && isThreeOfAKind;
+
+            var key = playerHand[0][1];
+            if(key == playerHand[1][1] && key == playerHand[2][1] && key == playerHand[3][1] && key == playerHand[4][1])
+                    isFlush = true;
+
+
+            var hand = convertForSort(playerHand);
+            var sortedHand = hand.sort();
+
+            console.log("sorted hand: " +sortedHand);
+            var key = sortedHand[0];
+            for(var i = 1; i < 5; i++) {
+                if (sortedHand[i] == key || sortedHand[i] > key + 1) {
+                    isStraight = false;
+                    break;
+                }
+                key = sortedHand[i];
+            }
+
+
+            if (isRoyalFlush)
+                res.write('9');
+            else if (isStraightFlush)
+                res.write('8');
+            else if (isFourOfAKind)
+                res.write( '7');
+            else if (isFullHouse)
+                res.write( '6');
+            else if (isFlush)
+                res.write( '5');
+            else if (isStraight)
+                res.write( '4');
+            else if (isThreeOfAKind)
+                res.write( '3');
+            else if (isTwoPair)
+                res.write( '2');
+            else if (isOnePair)
+                res.write( '1');
+            else
+                res.write('0');
+            res.end();
+
+});
+
 // simple get request using response.write to create text or html
 app.get('/test-response-body', function (request, response) {
     response.write('<html>');
@@ -57,139 +398,6 @@ app.get('/card-played/:card', function (req, res) {
     res.send('card that was played: ' + card);
     deck[card] = true;
 });
-
-// prints html list of all cards played marked true, false if otherwise.
-app.get('/cards-played', function(req, res) {
-    res.write('<html>');
-    res.write('<body>');
-    res.write('<ul>');
-    for (card in deck) {
-        res.write('<li>');
-        res.write(card + ": " + deck[card]);
-        res.write('</li>');
-    }
-    res.write('</ul>');
-    res.write('</body>');
-    res.write('</html>');
-    res.end();
-});
-
-
-app.get('/shuffle-deck', function (req, res) {
-    deck = ['1c','1d','1h','1s',
-            '2c','2d','2h','2s',
-            '3c','3d','3h','3s',
-            '4c','4d','4h','4s',
-            '5c','5d','5h','5s',
-            '6c','6d','6h','6s',
-            '7c','7d','7h','7s',
-            '8c','8d','8h','8s',
-            '9c','9d','9h','9s',
-            'tc','td','th','ts',
-            'jc','jd','jh','js',
-            'qc','qd','qh','qs',
-            'kc','kd','kh','ks'
-    ]; // 52 card deck
-
-    for(i = 0; i < 51; i++) {
-        shuffleCard(res);
-    }
-    res.write("deck size = "+deck.length);
-    res.end();
-});
-
-// start a new game after each round not using for program
-app.get('/new-game-true-false-implementation', function (req, res) {
-    nCards = 52;
-    deck['1c'] = false; // ace of clover
-    deck['1d'] = false; // ace of diamond
-    deck['1h'] = false; // ace of heart
-    deck['1s'] = false; // ace of spade
-    deck['2c'] = false; // 2 of clover
-    deck['2d'] = false; // 2 of diamond
-    deck['2h'] = false; // 2 of heart
-    deck['2s'] = false; // 2 of spade
-    deck['3c'] = false; // 3 of clover
-    deck['3d'] = false; // 3 of diamond
-    deck['3h'] = false; // 3 of heart
-    deck['3s'] = false; // 3 of spade
-    deck['4c'] = false; // 4 of clover
-    deck['4d'] = false; // 4 of diamond
-    deck['4h'] = false; // 4 of heart
-    deck['4s'] = false; // 4 of spade
-    deck['5c'] = false; // 5 of clover
-    deck['5d'] = false; // 5 of diamond
-    deck['5h'] = false; // 5 of heart
-    deck['5s'] = false; // 5 of spade
-    deck['6c'] = false; // 6 of clover
-    deck['6d'] = false; // 6 of diamond
-    deck['6h'] = false; // 6 of heart
-    deck['6s'] = false; // 6 of spade
-    deck['7c'] = false; // 7 of clover
-    deck['7d'] = false; // 7 of diamond
-    deck['7h'] = false; // 7 of heart
-    deck['7s'] = false; // 7 of spade
-    deck['8c'] = false; // 8 of clover
-    deck['8d'] = false; // 8 of diamond
-    deck['8h'] = false; // 8 of heart
-    deck['8s'] = false; // 8 of spade
-    deck['9c'] = false; // 9 of clover
-    deck['9d'] = false; // 9 of diamond
-    deck['9h'] = false; // 9 of heart
-    deck['9s'] = false; // 9 of spade
-    deck['tc'] = false; // 10 of clover
-    deck['td'] = false; // 10 of diamond
-    deck['th'] = false; // 10 of heart
-    deck['ts'] = false; // 10 of spade
-    deck['jc'] = false; // jack of clover
-    deck['jd'] = false; // jack of diamond
-    deck['jh'] = false; // jack of heart
-    deck['js'] = false; // jack of spade
-    deck['qc'] = false; // queen of clover
-    deck['qd'] = false; // queen of diamond
-    deck['qh'] = false; // queen of heart
-    deck['qs'] = false; // queen of spade
-    deck['kc'] = false; // king of clover
-    deck['kd'] = false; // king of diamond
-    deck['kh'] = false; // king of heart
-    deck['ks'] = false; // king of spade
-    res.send("new game");
-});
-
-
-// randomized dealing of cards using a timestamp and hash to replicate true
-// randomization
-app.get('/deal-cards', function(req, res) {
-    var nPlayers = 4; // get from connections array length
-    var p1Hand = [], p2Hand = [], p3Hand = [], p4Hand = [];
-
-    for(i = 0; i < 5; i++) { // deal 5 cards per player
-
-        // start game if enough players
-        if(nPlayers > 1) {
-            p1Hand.push(deck.pop());
-            p2Hand.push(deck.pop());
-        }
-
-        if(nPlayers > 2)
-            p3Hand.push(deck.pop());
-        if(nPlayers > 3)
-            p4Hand.push(deck.pop());
-    }
-    res.write("<html>");
-    res.write("p1Hand: ["+p1Hand[0]+", "+p1Hand[1]+", "+p1Hand[2]+", "+p1Hand[3]+", "+p1Hand[4]+"]</br>");
-    res.write("p2Hand: ["+p2Hand[0]+", "+p2Hand[1]+", "+p2Hand[2]+", "+p2Hand[3]+", "+p2Hand[4]+"]</br>");
-    res.write("p3Hand: ["+p3Hand[0]+", "+p3Hand[1]+", "+p3Hand[2]+", "+p3Hand[3]+", "+p3Hand[4]+"]</br>");
-    res.write("p4Hand: ["+p4Hand[0]+", "+p4Hand[1]+", "+p4Hand[2]+", "+p4Hand[3]+", "+p4Hand[4]+"]</br>");
-    res.end("</html>");
-
-});
-
-/*
---------------------------------------------------------------------------------
-                    END OF testing routing functions
---------------------------------------------------------------------------------
-*/
 
 
 
