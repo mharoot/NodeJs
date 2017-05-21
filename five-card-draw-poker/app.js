@@ -707,11 +707,16 @@ io.sockets.on('connection', function (socket) {
     // Disconnect
     socket.on('disconnect', function (data) {
         var removedSocket = connections.splice(connections.indexOf(socket), 1);
-        delete playerTurn[removedSocket.id];
-        delete playerScore[removedSocket.id];
+
+        delete playerTurn[removedSocket[0].id];
+        delete playerScore[removedSocket[0].id]; // this prolly doesn't either.
         console.log('Disconnected: %s sockets connected', connections.length);
-        if (connections.length < 2)
+        if (connections.length < 2) {
             noRoundInProgress = true;
+            for(key in playerTurn)
+                playerTurn[key] = false;
+        }
+        console.log(playerTurn);
     });
 });
 
