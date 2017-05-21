@@ -33,9 +33,16 @@ app.get('/test', function (request, response) {
 
 // hand strength test - straight
 app.get('/hand-strength-test-straight', function(req, res) {
-  // var playerHand = ['1c','2d','3c','4c','5c'];//straight passed
-  // var playerHand = ['2d','3c','4c','5c','1c']; // straight passed
-  var playerHand = ['3d','4d','2a','6c','5d']; // straight passed
+   var playerHand = ['1c','kc','qc','jc','tc']; // royal flush passed = 9
+  // var playerHand = ['kc','qc','jc','tc','9c']; // straight flush passed = 8
+  // var playerHand = ['1c','1d','1h','1s','kc']; // four of a kind = 7
+  // var playerHand = ['3c','3d','3h','2s','2d']; // full house passed = 6
+  // var playerHand = ['3c','4c','tc','jc','1c']; // flush passed = 5
+  // var playerHand = ['1c','2d','3c','4c','5c']; // straight passed = 4
+  // var playerHand = ['2d','3c','4c','5c','1c']; // straight passed = 4
+  // var playerHand = ['3d','4d','2a','6c','5d']; // straight passed = 4
+  // var playerHand = ['3d','3c','3h','1c','kc']; // three of kind passed = 3;
+  // var playerHand = ['2c','2d','1c','3c','1d']; // two pair passed = 2
   function convertForSort(playerHand) {
         var convertedHand = [];
         var hand = [playerHand[0][0],playerHand[1][0],playerHand[2][0],playerHand[3][0],playerHand[4][0]]
@@ -288,23 +295,34 @@ app.get('/hand-strength-test-straight', function(req, res) {
             var hand = convertForSort(playerHand);
             for(var i = 0; i < 5; i++) {
               var key = hand[i];
-              if(pairs[key] != 1)
-              pairs[key] = 1;
+              console.log(key);
+              console.log(pairs[key])
+              if(pairs[key] == null) {
+                    pairs[key] = 1;
+                    console.log("key: "+key);
+              } else {
+                ++pairs[key];
+                console.log("key incremented: "+key+", value: "+pairs[key]);
+              }
             }
 
 
 
 
-            var i = 0;
-            for(key in pairs) {
-                for(var j = i+1; j < 5; j++) {
-                    if( !visited[i] && playerHand[i][0] == playerHand[j][0]) {
-                        pairs[key]++;
-                        //visited[i] = true;
-                    }
-                }
-                i++;
-            }
+//            var i = 0;
+//            for(key in pairs) {
+//                var j = i+1;
+//                //for(var j = i+1; j < 5; j++) {
+//                    // convert for sort evaulates only 1 where we have 1 and 13 it thinks this is a two pair
+//                    // fix logic here
+//                    console.log(playerHand[i][0] + " "+ playerHand[i][0]);
+//                    if(playerHand[i][0] == playerHand[j][0] ) {
+//                        pairs[key]++;
+//
+//                    }
+//                //}
+//                i++;
+//            }
 
             var onePairCount = 0;
             i = 0;
@@ -777,26 +795,39 @@ io.sockets.on('connection', function (socket) {
     var visited = [false,false,false,false,false];
     var pairs = [];
     //init pairs
-    var hand = convertForSort(playerHand);
-    for(var i = 0; i < 5; i++) {
-      var key = hand[i];
-      if(pairs[key] != 1)
-      pairs[key] = 1;
-    }
 
-        
-
-
-    var i = 0;
-    for(key in pairs) {
-        for(var j = i+1; j < 5; j++) {
-            if( !visited[i] && playerHand[i][0] == playerHand[j][0]) {
-                pairs[key]++;
-                //visited[i] = true;
+            var hand = convertForSort(playerHand);
+            for(var i = 0; i < 5; i++) {
+              var key = hand[i];
+              console.log(key);
+              console.log(pairs[key])
+              if(pairs[key] == null) {
+                    pairs[key] = 1;
+                    console.log("key: "+key);
+              } else {
+                ++pairs[key];
+                console.log("key incremented: "+key+", value: "+pairs[key]);
+              }
             }
-        }
-        i++;
-    }
+
+
+
+
+//            var i = 0;
+//            for(key in pairs) {
+//                var j = i+1;
+//                //for(var j = i+1; j < 5; j++) {
+//                    // convert for sort evaulates only 1 where we have 1 and 13 it thinks this is a two pair
+//                    // fix logic here
+//                    console.log(playerHand[i][0] + " "+ playerHand[i][0]);
+//                    if(playerHand[i][0] == playerHand[j][0] ) {
+//                        pairs[key]++;
+//
+//                    }
+//                //}
+//                i++;
+//            }
+
 
     var onePairCount = 0;
     i = 0;
