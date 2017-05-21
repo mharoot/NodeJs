@@ -32,8 +32,25 @@ app.get('/test', function (request, response) {
 
 
 // hand strength test - straight
-app.get('/hand-strength-test-straight', function(req, res) {
-   var playerHand = ['1c','kc','qc','jc','tc']; // royal flush passed = 9
+app.get('/hand-strength-test/:id', function(req, res) {
+    var i = req.params.id;
+    var playerHands = [
+    ['1c','kc','qc','jc','tc'], // royal flush test    = 0
+    ['kc','qc','jc','tc','9c'], // straight flush test = 1
+    ['1c','1d','1h','1s','kc'], // four of a kind test = 2
+    ['3c','3d','3h','2s','2d'], // full house test     = 3
+    ['3c','4c','tc','jc','1c'], // flush test          = 4
+    ['1c','2d','3c','4c','5c'], // straight test       = 5
+    ['2d','3c','4c','5c','1c'], // straight test       = 6
+    ['3d','4d','2a','6c','5d'], // straight test       = 7
+    ['3d','3c','3h','1c','kc'], // three of kind test  = 8
+    ['2c','2d','1c','3c','1d'], // two pair test       = 9
+    ['2c','2d','jh','kc','qc'], // one pair test       = 10
+    ['1c','9d','jh','kc','qc']  // nothing test        = 11
+    ];
+
+    console.log(playerHands);
+  // var playerHand = ['1c','kc','qc','jc','tc']; // royal flush passed = 9
   // var playerHand = ['kc','qc','jc','tc','9c']; // straight flush passed = 8
   // var playerHand = ['1c','1d','1h','1s','kc']; // four of a kind = 7
   // var playerHand = ['3c','3d','3h','2s','2d']; // full house passed = 6
@@ -94,6 +111,13 @@ app.get('/hand-strength-test-straight', function(req, res) {
         return convertedHand;
     }
 
+res.write('<html>');
+
+/// start a for loop here for automated testing
+//for (var i = 0; i < 2; i++) {
+    var playerHand = playerHands[i];
+    console.log(playerHand)
+    console.log(playerHand[0])
          var cKQJ10 = playerHand.indexOf("kc")  > -1
                         && playerHand.indexOf("qc")  > -1
                         && playerHand.indexOf("jc")  > -1
@@ -385,7 +409,10 @@ app.get('/hand-strength-test-straight', function(req, res) {
                 res.write( '1');
             else
                 res.write('0');
-            res.end();
+
+             res.write('</br>');
+            //res.end();
+  res.end('</html>');
 
 });
 
