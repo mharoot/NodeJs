@@ -37,7 +37,13 @@
 			</br></br>
 			<p>player score:</p>
 			<p id="playerScore">0</p>
+            </br>
+            <h3>Hand History</h3>
+            <div style="height:100%; width:100%; overflow:auto; border:8px solid yellowgreen; padding:2%">
+                <ul id="handHistory"></ul>
+            </div>
 		</div>
+
     </div>
 </div>
 
@@ -64,6 +70,7 @@
 		var $userHand        = $('#userHand');
 		var $userSubmit      = $('#userSubmit')
 		var $playerScore     = $('#playerScore');
+		var $handHistory     = $('#handHistory');
 		var $card1 = $('#card1'), $card2 = $('#card2'), $card3 = $('#card3'),
 			$card4 = $('#card4'), $card5 = $('#card5');
 
@@ -106,6 +113,10 @@ socket.on('fromClient', function(data) { // listen for fromClient message
 			$playerScore.empty();
 			$playerScore.append(data.playerScore);
 			console.log('Received poker hand' + data.userHand+ ' from client');
+			var li = document.createElement("li");
+			var txt = document.createTextNode(data.userHand[0]+", "+data.userHand[1]+", "+data.userHand[2]+", "+data.userHand[3]+", "+data.userHand[4]);
+			li.append(txt);
+			$handHistory.append(li);
 			 $card1.empty();$card2.empty();$card3.empty();$card4.empty();$card5.empty();
 			 $card1.append(data.userHand[0]);$card2.append(data.userHand[1]);
 			 $card3.append(data.userHand[2]);$card4.append(data.userHand[3]);
