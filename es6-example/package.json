@@ -1,0 +1,19 @@
+{
+  "name": "es6-example",
+  "version": "1.0.0",
+  "description": "How to use es6 classes in node js example",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "ES6",
+    "Javascript",
+    "NodeJs"
+  ],
+  "author": "Michael Harootoonyan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
