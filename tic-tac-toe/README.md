@@ -12,6 +12,13 @@ System Design:
     - Two players per a <a href="https://socket.io/docs/rooms-and-namespaces/">Room.</a>
     - A player is a **User** object found in the **classes** directory.
     - Every player has a unique **roomSocketId** that is used as a key.
+    - All sockets on connection also fill the **socket._rooms** array with two items.  One item
+     is the room number and the other is the room socket id of the User.  Should a user
+     ever join a new room, we have to update the **socket._rooms** array to include the new room
+      number and new room id socket.  Readers may be wondering why use socket._rooms in this way.  I saw that
+      the array was never being used and decided to use it as a storage compartment for a room number and 
+      user room socket id.  This made it easier on disconnection to delete the right player
+      from the **players** array.
     - Readers may be wondering why not use **socket.id**?  If your testing this
     system at home then every time you connect a client using any home device 
     the socket.id will remain the same.  However, the  <a href="https://socket.io/docs/rooms-and-namespaces/">room</a> holds two unique socket ids. 
@@ -21,13 +28,7 @@ System Design:
     Should there be another waiting client, we can then join both
     those players into an empty room and assign them new key values, remembering to remove
     the old ones which can be done in O(1) time since we are using key value pairs.
-    - All sockets on connection also fill the **socket._rooms** array with two items.  One item
-     is the room number and the other is the room socket id of the User.  Should a user
-     ever join a new room, we have to update the **socket._rooms** array to include the new room
-      number and new socket.  Readers may be wondering why use socket._rooms in this way.  I saw that
-      the array was never being used and decided to use it as a storage compartment for a room number and 
-      user room socket id.  This made it easier on disconnection to delete the right player
-      from the **players** array.
+
 2. classes/User.js
     - A placeholder for a player using ES6 syntax.
     
