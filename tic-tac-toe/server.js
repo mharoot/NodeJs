@@ -53,10 +53,6 @@ io.sockets.on('connection', function (socket) {
     key = player.getRoomSocketId;
     players[key] = player;
     players[key].toString(); // prints the player
-    //console.log(player);
-
-    //console.log("logging players obj");
-    //console.log(players);
 
 
     // Disconnect
@@ -67,32 +63,22 @@ io.sockets.on('connection', function (socket) {
         var room          = getSocketsFromRoom(socket._rooms[0]); // i used rooms to store a room number, lets store the
                                                                   // roomSocketId as well in rooms can be accesed by using
                                                                   // socket._rooms[1]
+
+
+
+        //socket.leave(players[key].getRoom);
+        //Question: Is it good practice to leave a room before removing a socket?
+            // - It doesn't seem like it makes a difference
         var removedSocket = connections.splice(connections.indexOf(socket), 1);
         deletePlayer(key);
-
-        //socket.leave(players[socket.id.toString()].getRoom);
-
-        //console.log("disconnecting socket id: "+key);
-        //console.log("logging my collection of room char type numbers:");
-        //console.log(rooms);
 
 
 
         console.log('Disconnected: %s sockets connected', connections.length);
 
 
-        console.log(connections.length);
         if (connections.length == 1) {
-            console.log("CONNECTIONS LENGTH IS 1!  attempting to erase rooms using rooms = []");
-            console.log(rooms);
             rooms = [];
-            console.log(rooms);
-
-            console.log("now trying splice:");
-
-            rooms.splice(0,rooms.length);
-            console.log(rooms);
-
         }
 
         setPlayerTurn (0, false, room); // setting player 1's turn to false if they exist.

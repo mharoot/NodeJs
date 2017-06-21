@@ -1,11 +1,27 @@
 # Tic-Tac-Toe Client Server Game Using Socket IO
 
+Requirements:
+--------------------------------------------------------------------------------
+1. Have the latest version of node js and npm in order to use User class which uses
+the ES6 syntax.
+2. If you use earlier versions of node js you may want to use a transpiler.  Take a look at <a href="https://babeljs.io/">Babel.</a>
 
 System Design:
 --------------------------------------------------------------------------------
-1. Two players per a <a href="https://socket.io/docs/rooms-and-namespaces/">Room.</a>
-
-
+1. server.js
+    - Two players per a <a href="https://socket.io/docs/rooms-and-namespaces/">Room.</a>
+    - A player is a **User** object found in the **classes** directiory.
+    - Every player has a unique **roomSocketId** that is used as a key.
+    - Readers may be wondering why not use **socket.id**?  If your testing this
+    system at home then everytime you connect the socket.id is the same.  However,
+    the room holds two unique socket ids.  This may pose a few problems because
+    when a player leaves a room I am not planning on keeping that player waiting until
+    another client comes back.  Should there be another waiting client we can then join both
+    those players into an empty room and assign them new key values, remembering to remove
+    the old ones which can be done in O(1) time since we are using key value pairs.
+2. classes/User.js
+    - A placeholder for a player using ES6 syntax.
+    
 BUGS:
 --------------------------------------------------------------------------------
     1. When 3 players connect, and all disconnect.  
@@ -16,3 +32,6 @@ FIXED BUGS:
     1. Fix for bug #1 was just a code arrangement issue.  After creating the 
     { function setPlayerTurn() } it was easy to see that the return function was
     ending the code before the execution.
+    
+    
+    
