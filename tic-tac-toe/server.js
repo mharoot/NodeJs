@@ -95,7 +95,7 @@ io.sockets.on('connection', function (socket) {
 
         }
 
-    setPlayerTurn (0, false, room);
+        setPlayerTurn (0, false, room); // setting player 1's turn to false if they exist.
 
     });
 });
