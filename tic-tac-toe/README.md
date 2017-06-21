@@ -13,12 +13,15 @@ System Design:
     - A player is a **User** object found in the **classes** directiory.
     - Every player has a unique **roomSocketId** that is used as a key.
     - Readers may be wondering why not use **socket.id**?  If your testing this
-    system at home then everytime you connect the socket.id is the same.  However,
-    the room holds two unique socket ids.  This may pose a few problems because
-    when a player leaves a room I am not planning on keeping that player waiting until
-    another client comes back.  Should there be another waiting client we can then join both
+    system at home then every time you connect a client using any home device 
+    the socket.id will remain the same.  However, the  <a href="https://socket.io/docs/rooms-and-namespaces/">room</a> holds two unique socket ids. 
+    This may pose a few problems because when a player leaves a room and if another 
+    player was in the room then that player will have to wait until
+    another client connects or until all the other previous rooms are filled. 
+    Should there be another waiting client, we can then join both
     those players into an empty room and assign them new key values, remembering to remove
     the old ones which can be done in O(1) time since we are using key value pairs.
+    
 2. classes/User.js
     - A placeholder for a player using ES6 syntax.
     
