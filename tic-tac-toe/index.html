@@ -1,0 +1,55 @@
+<html>
+
+<head>
+    <title>Five-Card-Draw-Poker</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+
+<body>
+<div class="container">
+    <div id="userHand" class="row">
+        <div class="col-md-12">
+
+        </div>
+    </div>
+    <div id="userController" class="row">
+        <div class="col-md-12">
+            <h2 id="playerTurnDisplay"></h2>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p>player 1 score:</p>
+                    <p id="player1Score">0</p>
+                </div>
+                <div class="col-md-6">
+                    <p>player 2 score:</p>
+                    <p id="player2Score">0</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    	// main function
+	$( function () {
+		var socket 	           = io.connect();
+		var $playerTurnDisplay = $('#playerTurnDisplay');
+
+	    // 3. Recieve Message Broadcast
+		socket.on('player-turn', function (data) {
+			$playerTurnDisplay.append('<div class="well"><strong>'+data.userTurn+': </strong></div>');
+		});
+
+
+
+	});
+</script>
+
+</body>
+</html>
