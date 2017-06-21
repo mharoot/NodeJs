@@ -61,7 +61,7 @@ io.sockets.on('connection', function (socket) {
 
     // Disconnect
     socket.on('disconnect', function (data) {
-        console.log(socket._rooms);
+        //console.log(socket._rooms);
         var key           = socket._rooms[1];
         var player        = players[key];
         var room          = getSocketsFromRoom(socket._rooms[0]); // i used rooms to store a room number, lets store the
@@ -72,28 +72,31 @@ io.sockets.on('connection', function (socket) {
 
         //socket.leave(players[socket.id.toString()].getRoom);
 
-        console.log("disconnecting socket id: "+key);
-        console.log("logging my collection of room char type numbers:");
-        console.log(rooms);
+        //console.log("disconnecting socket id: "+key);
+        //console.log("logging my collection of room char type numbers:");
+        //console.log(rooms);
 
 
 
         console.log('Disconnected: %s sockets connected', connections.length);
-        if (room === undefined)
-            return;
 
-        if(room.length === 2) {
-            var player1 = getRoomSocketIdOfUser(room, 0); // This gets the room socket id of 1st player.
-            players[player1].setTurn(false);
-        }
+
         console.log(connections.length);
         if (connections.length == 1) {
-            // then reset rooms to '0'
-            console.log("CONNECTIONS LENGTH IS ZERO! LOGGING ROOMS NOW")
+            console.log("CONNECTIONS LENGTH IS 1!  attempting to erase rooms using rooms = []");
             console.log(rooms);
-            console.log(rooms.splice(0,rooms.length));
+            rooms = [];
             console.log(rooms);
+
+            console.log("now trying splice:");
+
+            rooms.splice(0,rooms.length);
+            console.log(rooms);
+
         }
+
+    setPlayerTurn (0, false, room);
+
     });
 });
 
@@ -265,6 +268,22 @@ function getRoomSocketIdOfUser(room, player) {
     return Object.keys(room.sockets)[player];
 }
 
+/**
+ * Set player turn.
+ *
+ * @param {number} player - 0 for player 1, 1 for player 2
+ * @param {bool}   turn   - false for no turn, true for player's turn to go
+ * @room  {Room}   room   - the room containing the player sockets
+ **/
+function setPlayerTurn (player, turn, room) {
+    if (room === undefined)
+                return;
+
+    if(room.length === 2) {
+        var player1 = getRoomSocketIdOfUser(room, 0); // This gets the room socket id of 1st player.
+        players[player1].setTurn(false);
+    }
+}
 
 /******************************************************************************
                          END OF UTILITY FUNCTIONS
