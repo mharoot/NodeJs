@@ -4,7 +4,7 @@
   "description": "Tic tac toe two player game",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,10 @@
     "io",
     "client",
     "server",
-    "game"
+    "game",
+    "mocha",
+    "chai",
+    "TDD"
   ],
   "author": "Michael Harootoonyan",
   "license": "MIT",
@@ -31,5 +34,9 @@
   "dependencies": {
     "express": "^4.15.3",
     "socket.io": "^2.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2"
   }
 }

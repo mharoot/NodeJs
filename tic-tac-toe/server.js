@@ -34,12 +34,6 @@ io.sockets.on('connection', function (socket) {
     var numOfConnections = connections.length;
     console.log('Connected: %s sockets connected', numOfConnections);
 
-    // --- leave these comments for a life lesson. --
-    //var key = socket.id; // must use different thing on a key, this is coming from my house of course it;s going to have
-                         // the same socket.id for all of them.
-    //var player = new User("mynameis: "+key, key);
-    // -- end of leave these comments ---
-
     var key;    // will be the roomSocketId now
     var player; // new User("name: "+key, key);
 
