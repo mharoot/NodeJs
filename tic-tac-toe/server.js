@@ -165,6 +165,9 @@ function deletePlayer(key) {
         // to do:
         //      remove username on disconnect from a room.
         var user = players[key];
+
+        if (user == null) // undefined
+            return;
         var room = user.getRoom;
         var username = user.getName;
         io.sockets.in(room).emit('remove user', username);
