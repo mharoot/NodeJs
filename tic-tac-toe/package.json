@@ -4,7 +4,10 @@
   "description": "Tic tac toe two player game",
   "main": "server.js",
   "scripts": {
-    "test": "mocha"
+    "testAll": "mocha",
+    "testUser": "mocha test/userTest.js",
+    "testUserSpecifiedDescription": "mocha --grep 'User class unit testing.'",
+    "testDemo": "mocha --grep demo"
   },
   "repository": {
     "type": "git",

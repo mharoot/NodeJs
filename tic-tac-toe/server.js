@@ -36,17 +36,16 @@ io.sockets.on('connection', function (socket) {
 
     var key;    // will be the roomSocketId now
     var player; // new User("name: "+key, key);
+    // New user
+    socket.on('new user', function (username, callback) {
+        callback(true);
+        socket.username =  username;
+        console.log(socket.username);
+        updateServer(socket);
 
-    // base case 1: if there are no rooms then create one
-    if (rooms.length == 0) {
-        player = createRoom('1', socket); // a new User to be returned by this function.
-    } else {
-        player = findRoomForUser(socket);
-    }
+    });
 
-    key = player.getRoomSocketId;
-    players[key] = player;
-    players[key].toString(); // prints the player
+
 
 
     // Disconnect
@@ -78,7 +77,29 @@ io.sockets.on('connection', function (socket) {
         setPlayerTurn (0, false, room); // setting player 1's turn to false if they exist.
 
     });
+
+    function updateServer(socket) {
+            // base case 1: if there are no rooms then create one
+            if (rooms.length == 0) {
+                player = createRoom('1', socket); // a new User to be returned by this function.
+                var users = [];
+                users.push(socket.username);
+                updateUsernames('1', users);
+            } else {
+                player = findRoomForUser(socket);
+            }
+
+            key = player.getRoomSocketId;
+            players[key] = player;
+            players[key].toString(); // prints the player
+    }
+
+    function updateUsernames(roomName, users) {
+        io.sockets.in(roomName).emit('get users', users);
+    }
 });
+
+
 
 
 
@@ -126,7 +147,7 @@ function createRoom(roomName, socket) {
 
     key = getRoomSocketIdOfUser(room, 0); // get the unique roomSocketId
 
-    player = new User('name: ' + key, key); // create the new User based on the
+    player = new User(socket.username, key); // create the new User based on the
                                             // key = room socket id
 
     player.setRoom(roomName); // update the room variable in player.
@@ -141,9 +162,17 @@ function createRoom(roomName, socket) {
 }
 
 function deletePlayer(key) {
-        console.log("Attempting to delete a player")
-        console.log(players[key])
+        // to do:
+        //      remove username on disconnect from a room.
+        var user = players[key];
+        var room = user.getRoom;
+        var username = user.getName;
+        io.sockets.in(room).emit('remove user', username);
+
+        console.log("Attempting to delete a player");
+        console.log(user);
         delete players[key];
+
 }
 
 /**
@@ -176,6 +205,9 @@ function findRoomForUser(socket) {
 
     if (roomNotFound) { // Then Create a new room and put the user in it.
         player = createRoom((rooms.length+1).toString(), socket);
+        var users = [];
+        users.push(socket.username);
+        io.sockets.in(player.getRoom).emit('get users', users);
     } else {
         // note: sometimes i have empty room nums laying around
 
@@ -190,20 +222,26 @@ function findRoomForUser(socket) {
                                                             // of first player.
 
             players[player1Key].setTurn(true); // allow player1 to take a turn
-
+            var users = [];
+            users.push(socket.username);
+            users.push(players[player1Key].getName);
+            io.sockets.in(roomNum).emit('get users', users);
 
 
             // Creating second player.
             var player2Key = getRoomSocketIdOfUser(room, 1); // Returns roomSocketId
                                                              // of second player
-            player = new User("name: " + player2Key, player2Key);
+            player = new User(socket.username, player2Key);
 
         } else if (room.length === 1) { // else if we only have 1 player then
                // get the player1Key and create the first player Use object.
                // due to the earlier note
 
              var player1Key = getRoomSocketIdOfUser(room, 0); // Returns roomSocketId
-             player = new User("name: "+ player1Key)
+             player = new User(socket.username, player1Key);
+             var users = [];
+             users.push(socket.username);
+             updateUsernames(roomNum, users);
 
         }
         // setting room number of newly joined player.

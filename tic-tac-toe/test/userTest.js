@@ -1,4 +1,4 @@
-//appTest.js
+//userTest.js
 "use strict";
 
 // constant variables
@@ -68,4 +68,12 @@ describe('User class unit testing.', function () {
     });
 
 
+});
+
+// demo of running units.  look in package.json scripts: for more detail.
+describe('demo', function () {
+    it('demonstration of group testing', function () {
+        assert.typeOf("Hello World", 'string');
+        console.log("Hello World is a string data type!");
+    });
 });
