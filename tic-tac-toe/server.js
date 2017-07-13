@@ -54,7 +54,7 @@ io.sockets.on('connection', function (socket) {
             rooms = [];
 
         deletePlayer(key); // delete player from players array
-        console.log('%s Disconnected: %s sockets connected', player.getName, connections.length);
+        console.log('Disconnected: %s sockets connected', connections.length);
 
         if (room == null) 
             return;
