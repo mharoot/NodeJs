@@ -5,6 +5,8 @@ const express     = require('express');
 const app         = express();
 const server      = require('http').createServer(app);
 const io          = require('socket.io').listen(server);
+const uuid        = require('uuid');
+
 
 let connections = []; // holds all user socket connections
 let rooms       = []; // holds all rooms
@@ -31,18 +33,14 @@ app.get('/', function (req, res) {
 // on connection
 io.sockets.on('connection', function (socket) {
     connections.push(socket);
-    var numOfConnections = connections.length;
-    console.log('Connected: %s sockets connected', numOfConnections);
+    console.log('Connected: %s sockets connected', connections.length);
 
-    var key;    // will be the roomSocketId now
-    var player; // new User("name: "+key, key);
+
     // New user
     socket.on('new user', function (username, callback) {
         callback(true);
         socket.username =  username;
-        console.log(socket.username);
         updateServer(socket);
-
     });
 
 
@@ -63,6 +61,27 @@ io.sockets.on('connection', function (socket) {
         //Question: Is it good practice to leave a room before removing a socket?
             // - It doesn't seem like it makes a difference
         var removedSocket = connections.splice(connections.indexOf(socket), 1);
+        if (connections.length == 0) {
+            console.log('clearing rooms');
+            rooms = [];
+            //players = [];
+        }
+        if (room == null) {
+            deletePlayer(key);
+            console.log('Disconnected: %s sockets connected', connections.length);
+            return;
+        }
+
+        room.names.splice(room.names.indexOf(socket.username), 1);
+        if (room.player1Key === key) {
+            room.player1Key = room.player2Key;
+            room.player2Key = '';
+        }
+        
+        if (room.names.length == 0) {
+            console.log('room has no names')
+            room = null;
+        }
         deletePlayer(key);
 
 
@@ -70,9 +89,7 @@ io.sockets.on('connection', function (socket) {
         console.log('Disconnected: %s sockets connected', connections.length);
 
 
-        if (connections.length == 1) {
-            rooms = [];
-        }
+
 
         setPlayerTurn (0, false, room); // setting player 1's turn to false if they exist.
 
@@ -80,6 +97,7 @@ io.sockets.on('connection', function (socket) {
 
     function updateServer(socket) {
             // base case 1: if there are no rooms then create one
+            var key, player;
             if (rooms.length == 0) {
                 player = createRoom('1', socket); // a new User to be returned by this function.
                 var users = [];
@@ -92,6 +110,10 @@ io.sockets.on('connection', function (socket) {
             key = player.getRoomSocketId;
             players[key] = player;
             players[key].toString(); // prints the player
+            console.log("logging all players");
+            console.log(players);
+            console.log("logging room of player");
+            console.log(getSocketsFromRoom(player.getRoom));
     }
 
     function updateUsernames(roomName, users) {
@@ -138,14 +160,17 @@ function createRoom(roomName, socket) {
     var player; // new User("name: "+key, key);
     var room;   // a Room Object.
 
-    rooms.push(roomName);      // create a new room store in our rooms place holder.
+    rooms.push(roomName);     // create a new room store in our rooms place holder.
     socket.join(roomName);    // join the socket into the room.
 
 
     room = getSocketsFromRoom(roomName);  // returns the room the player was
                                           // just placed in.
 
-    key = getRoomSocketIdOfUser(room, 0); // get the unique roomSocketId
+    room.names = [];                      // create the names array inside the new room
+    room.names.push(socket.username);     // add the first name into the new room
+
+    key = uuid.v1();
 
     player = new User(socket.username, key); // create the new User based on the
                                             // key = room socket id
@@ -156,24 +181,22 @@ function createRoom(roomName, socket) {
                                   // disconnect we can id it
     socket._rooms.push(key); // Because ._rooms is an unused array,
                              // I can use it as storage for the roomSocketId
+    room.player1Key = key;
 
 
     return player;
 }
 
 function deletePlayer(key) {
-        // to do:
-        //      remove username on disconnect from a room.
+        console.log("Attempting to delete a player");
         var user = players[key];
-
+        console.log(user);
         if (user == null) // undefined
             return;
         var room = user.getRoom;
         var username = user.getName;
         io.sockets.in(room).emit('remove user', username);
 
-        console.log("Attempting to delete a player");
-        console.log(user);
         delete players[key];
 
 }
@@ -188,29 +211,28 @@ function deletePlayer(key) {
  *
  **/
 function findRoomForUser(socket) {
-
-    var key;    // will be the roomSocketId now
-    var player; // new User("name: "+key, key);
+    var player; 
+    var room;               
     var roomNotFound = true;
     var roomNum = '';
-    for (let room of rooms) {
-      // rooms is just an array of char numbers and room is a char number
-      var key = getSocketsFromRoom(room);
-      if(key === undefined) {
+
+    for (let roomName of rooms) { // Searching for a room to put the player in.
+        room = getSocketsFromRoom(roomName);
+        console.log(room);
+        if (room == null) 
             break;
-      }
-      if(key.length === 1) {
-          roomNotFound = false;
-          roomNum = room;
-          break;
-      }
+
+        if(room.length < 2) {
+            roomNotFound = false;
+            roomNum = roomName;
+            break;
+        }
     }
 
     if (roomNotFound) { // Then Create a new room and put the user in it.
         player = createRoom((rooms.length+1).toString(), socket);
-        var users = [];
-        users.push(socket.username);
-        io.sockets.in(player.getRoom).emit('get users', users);
+        var userNames = getSocketsFromRoom(player.getRoom).names;
+        io.sockets.in(player.getRoom).emit('get users', userNames);
     } else {
         // note: sometimes i have empty room nums laying around
 
@@ -220,23 +242,27 @@ function findRoomForUser(socket) {
 
         if (room.length === 2) { // if we have two players
 
-            // Then allow player1 to make a move.
-            var player1Key = getRoomSocketIdOfUser(room, 0); // Returns roomSocketId
-                                                            // of first player.
-
+            // todo : Then allow player1 to make a move.
+            var player1Key = room.player1Key;
             players[player1Key].setTurn(true); // allow player1 to take a turn
-            var users = [];
-            users.push(socket.username);
-            users.push(players[player1Key].getName);
-            io.sockets.in(roomNum).emit('get users', users);
 
 
             // Creating second player.
-            var player2Key = getRoomSocketIdOfUser(room, 1); // Returns roomSocketId
-                                                             // of second player
+            var player2Key = uuid.v1();
+            room.player2Key = player2Key;
             player = new User(socket.username, player2Key);
+            room.names.push(socket.username);
+            console.log("log of room names");
+            console.log(room.names);
+            console.log("log of room collection");
+            console.log(room);
+            io.sockets.in(roomNum).emit('get users', room.names);
 
-        } else if (room.length === 1) { // else if we only have 1 player then
+
+        } else console.log("error on line 243!");
+         /*
+        this shouldn't even run it was a mistake!'
+        else if (room.length === 1) { // else if we only have 1 player then
                // get the player1Key and create the first player Use object.
                // due to the earlier note
 
@@ -246,12 +272,14 @@ function findRoomForUser(socket) {
              users.push(socket.username);
              updateUsernames(roomNum, users);
 
-        }
-        // setting room number of newly joined player.
-        player.setRoom(roomNum);
+        }*/
+
+        
+        player.setRoom(roomNum);     // setting room number of newly joined player.
 
         socket._rooms.push(roomNum); // pushing to in a socket so at disconnect we can id it easily
 
+        // todo: change the .getRoomSocketId to getUUID in the user class.
         socket._rooms.push(player.getRoomSocketId); // Because ._rooms is an
                                                     // unused array, I can use
                                                     // it as storage for the
