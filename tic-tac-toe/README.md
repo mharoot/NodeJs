@@ -11,7 +11,7 @@ System Design:
 1. server.js
     - Two players per a <a href="https://socket.io/docs/rooms-and-namespaces/">Room.</a>
     - A player is a **User** object found in the **classes** directory.
-    - Every player has a unique **roomSocketId** that is used as a key.
+    - Every player has a unique user id **UUID** that is used as a key.
     - All sockets on connection also fill the **socket._rooms** array with two items.  One item
      is the room number and the other is the unique user id using the UUID in npm.
 
@@ -23,7 +23,7 @@ BUGS:
     1. When 3 players connect, and all disconnect.  
     The rooms var is not being cleared. (fixed)
     2. Using the roomSocketId was not reliable. (fixed)
-    Detail of old system design:
+    Detail of old system design that caused this bug:
         - All sockets on connection also fill the **socket._rooms** array with two items.  One item
         is the room number and the other is the room socket id of the User.  Should a user
         ever join a new room, we have to update the **socket._rooms** array to include the new room

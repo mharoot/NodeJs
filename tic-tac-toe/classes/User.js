@@ -5,15 +5,15 @@ class User {
  *
  * @constructor
  * @param {String} name     - The name of the user.
- * @param {String} roomSocketId - The socket id of the user.
+ * @param {String} UUID     - The unique user id of the user.
  */
-	constructor(name, roomSocketId) {
+	constructor(name, UUID) {
 		this.name  = name;
 		this.playingGame = false;
 		this.room  = '';    // By default a player is not placed into a room
 		                    // until another player is available to vs them.
 		this.score = 0;     // By default a player has a score of 0.
-		this.roomSocketId = roomSocketId;
+		this.UUID = UUID;
 		this.turn  = false; // By default a player can not take a turn.
 	}
 
@@ -42,19 +42,19 @@ class User {
   /**
    * Get player's socket id.
    *
-   * @return {String} roomSocketId - users socket id key.
+   * @return {String} UUID - users socket id key.
    */
-  get getRoomSocketId() {
-    return this.roomSocketId;
+  get getUUID() {
+    return this.UUID;
   }
 
 
   /**
-   * Get player's room id
+   * Get player's room number.
    *
-   * @return {String} room - users room id.
+   * @return {String} room - users room number.
    */
-  get getRoom() {
+  get getRoomNum() {
     return this.room;
   }
 
@@ -127,7 +127,7 @@ class User {
   toString() {
     console.log(
       "name: " + this.name
-    + ", roomSocketId: " + this.roomSocketId
+    + ", UUID: " + this.UUID
     + ", score: " + this.score
     + ", room: " + this.room
     + ", turn: "+this.turn
