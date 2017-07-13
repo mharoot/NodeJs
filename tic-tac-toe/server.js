@@ -137,7 +137,6 @@ io.sockets.on('connection', function (socket) {
  *@param {socket} socket - the client socket used to join a room.
  *@return new User('name: ' + roomSocketId, roomSocketId);
  **/
-
 function createRoom(roomName, socket) {
     var key;    // will be the roomSocketId now
     var player; // new User("name: "+key, key);
@@ -170,6 +169,10 @@ function createRoom(roomName, socket) {
     return player;
 }
 
+/**
+ * Deletes a player from the players array and updates the client side list of users.
+ * @param {string} key - the uuid of the player.
+ */
 function deletePlayer(key) {
         console.log("Attempting to delete a player");
         var user = players[key];
@@ -276,9 +279,7 @@ function getRoom(roomName) {
 
 
 
-
 /**
- *
  * Set player turn.
  *
  * @param {number} player - 0 for player 1, 1 for player 2
