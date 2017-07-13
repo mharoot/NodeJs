@@ -40,9 +40,9 @@ class User {
   }
 
   /**
-   * Get player's socket id.
+   * Get player's unique user id.
    *
-   * @return {String} UUID - users socket id key.
+   * @return {String} UUID - unique user id.
    */
   get getUUID() {
     return this.UUID;

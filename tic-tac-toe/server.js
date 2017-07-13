@@ -81,24 +81,19 @@ io.sockets.on('connection', function (socket) {
     });
 
     function updateServer(socket) {
-            // base case 1: if there are no rooms then create one
             var key, player;
+
+            // *base case: if there are no rooms then create one
             if (rooms.length == 0) {
-                player = createRoom('1', socket); // a new User to be returned by this function.
+                player = createRoom('1', socket); // a new User object to be returned by this function.
                 var users = [];
                 users.push(socket.username);
                 io.sockets.in('1').emit('get users', users);
-            } else {
+            } else 
                 player = findRoomForUser(socket);
-            }
 
             key = player.getUUID;
             players[key] = player;
-            // players[key].toString(); // prints the player
-            // console.log("logging all players");
-            // console.log(players);
-            // console.log("logging room of player");
-            // console.log(getRoom(player.getRoomNum));
     }
 
 
@@ -169,6 +164,7 @@ function createRoom(roomName, socket) {
     return player;
 }
 
+
 /**
  * Deletes a player from the players array and updates the client side list of users.
  * @param {string} key - the uuid of the player.
@@ -186,6 +182,7 @@ function deletePlayer(key) {
         delete players[key];
 
 }
+
 
 /**
  *
@@ -263,6 +260,7 @@ function findRoomForUser(socket) {
 
 }
 
+
 /**
  * @return a collection {} containing a collection {} of sockets, and an int
  *         length.
@@ -276,7 +274,6 @@ function findRoomForUser(socket) {
 function getRoom(roomName) {
     return io.nsps['/'].adapter.rooms[roomName];
 }
-
 
 
 /**
@@ -299,6 +296,7 @@ function setPlayerTurn (player, turn, room) {
     players[playerKey].setTurn(true);
 
 }
+
 
 /**
  * Updates usernames in the client end.
