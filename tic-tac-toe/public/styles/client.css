@@ -1,0 +1,24 @@
+
+body{
+    margin-top:30px;
+}
+
+#messageArea {
+    display:none;
+}
+
+#userController {
+    display:none;
+}
+
+table#tic-tac-toe-grid{
+    width:100%;
+    height:60%;
+    border: 1px solid black;
+    padding:20px;
+}
+#tic-tac-toe-grid td{
+    padding:20px;
+    border: 1px solid black;
+    background-color:blanchedalmond;
+}
