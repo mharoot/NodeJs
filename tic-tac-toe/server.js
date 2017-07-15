@@ -12,6 +12,7 @@ let connections = []; // holds all user socket connections
 let rooms       = []; // holds all rooms
 let players     = []; // holds all of our class User objects, using key value
                       // to achieve a running time of O(1).
+let grid        = []; // holds all player marks that have been played on the grid
 
 
 server.listen(process.env.PORT || 3000);
@@ -39,6 +40,16 @@ io.sockets.on('connection', function (socket) {
     });
 
 
+    // Player marked grid.
+    socket.on('grid marked', function(id) {
+        console.log('Grid Marked: %s', id);
+        if (grid[id] == null) {
+            grid[id] = socket._rooms[1]; // user socket id
+            console.log("Grid Id: %s", grid[id]);
+        } else {
+            console.log("grid taken by player already");
+        }
+    });
 
 
     // Disconnect
@@ -159,6 +170,7 @@ function deletePlayer(key) {
         var roomNum = user.getRoomNum;
         var username = user.getName;
         io.sockets.in(roomNum).emit('remove user', username);
+        io.sockets.in(roomNum).emit('player left');
 
         delete players[key];
 
@@ -210,9 +222,12 @@ function findRoomForUser(socket) {
         // If we have two players
         if (room.length === 2) { 
 
-            // then allow player1 to take a turn
+            // then allow player1 to take a turn,
             var player1Key = room.player1Key;
             players[player1Key].setTurn(true);
+            
+            //notify the clients its player1's turn to go in the room,
+            io.sockets.in(roomNum).emit('player turn', players[player1Key].getName);
 
             // and create the second player.
             var player2Key = uuid.v1();
