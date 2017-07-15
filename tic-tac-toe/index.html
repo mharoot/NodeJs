@@ -13,6 +13,22 @@
 		#messageArea {
 			display:none;
 		}
+
+        #userController {
+			display:none;
+        }
+
+        table#tic-tac-toe-grid{
+            width:100%;
+            height:60%;
+            border: 1px solid black;
+            padding:20px;
+        }
+        #tic-tac-toe-grid td{
+            padding:20px;
+            border: 1px solid black;
+            background-color:blanchedalmond;
+        }
 	</style>
 </head>
 
@@ -45,12 +61,34 @@
 
             <div class="row">
                 <div class="col-md-6">
-                    <p>player 1 score:</p>
+                    <p id="player1Name">player 1 score:</p>
                     <p id="player1Score">0</p>
                 </div>
                 <div class="col-md-6">
-                    <p>player 2 score:</p>
+                    <p id="player2Name">player 2 score:</p>
                     <p id="player2Score">0</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-9">
+                    <table id="tic-tac-toe-grid"> 
+                        <tr>
+                            <td id="1"></td>
+                            <td id="2"></td>
+                            <td id="3"></td>
+                        </tr>
+                        <tr>
+                            <td id="4"></td>
+                            <td id="5"></td>
+                            <td id="6"></td>
+                        </tr>
+                        <tr>
+                            <td id="7"></td>
+                            <td id="8"></td>
+                            <td id="9"></td>
+                        </tr>                    
+                        </table>
                 </div>
             </div>
 
@@ -64,13 +102,32 @@
 	$( function () {
 		var socket 	           = io.connect();
 		var $playerTurnDisplay = $('#playerTurnDisplay');
+        var $grid              = $('table#tic-tac-toe-grid td');
 
-	    // 3. Recieve Message Broadcast
-		socket.on('player-turn', function (data) {
-			$playerTurnDisplay.append('<div class="well"><strong>'+data.userTurn+': </strong></div>');
+        $grid.on( "mouseover", function() {
+            $( this ).css( "background-color", "red" );
+
+            $( this ).on("mouseout", function() {
+                $( this ).css( "background-color", "blanchedalmond" );
+            });
+
+            $( this ).on("click", function() {
+                $( this ).css("background-color", "blue");
+                    socket.emit("grid marked", this.id);
+
+            });
+        });
+
+		socket.on('player turn', function (username) {
+			$playerTurnDisplay.append('<div class="well"><strong>'+username+' </strong> \'s turn to go!</div>');
+		});
+
+        socket.on('player left', function () {
+			$playerTurnDisplay.html('');
 		});
 
 		var $messageArea     = $('#messageArea');
+        var $userController  = $('#userController');
 		var $userForm        = $('#userForm');
 		var $userFormArea    = $('#userFormArea');
 		var $username        = $('#username');
@@ -82,6 +139,7 @@
 				if (data) {
 					$userFormArea.hide();
 					$messageArea.show();
+                    $userController.show();
 				}
 			});
 			$username.val('');
