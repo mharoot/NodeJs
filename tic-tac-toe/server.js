@@ -42,13 +42,52 @@ io.sockets.on('connection', function (socket) {
 
     // Player marked grid.
     socket.on('grid marked', function(id) {
-        console.log('Grid Marked: %s', id);
+        var roomNum   = socket._rooms['0'];
+        var playerKey = socket._rooms['1'];
+        var room      = getRoom(roomNum);
+        var mark      = '';
+        var isPlayersTurn = players[playerKey].isPlayerTurn == true;
+
+        //player turn lock
+        console.log(isPlayersTurn)
+        if (isPlayersTurn)
+            console.log('Grid Marked: %s', id);
+        else {
+            console.log("not players turn");
+            return;
+        }
+
+
+
+        //back end Lock for existing marks
         if (grid[id] != null) {
             console.log("grid taken by player already");
         } else if (grid[id] == null) {
             grid[id] = socket._rooms[1]; // user socket id
             console.log("Grid Id: %s", grid[id]);
         }
+
+        
+
+
+
+
+
+        if (room.player1Key == playerKey) {
+            mark = 'X';
+            players[room.player2Key].setTurn(true);
+            players[room.player1Key].setTurn(false);
+        }
+        else if (room.player2Key == playerKey) {
+            mark = 'O';
+            players[room.player2Key].setTurn(false);
+            players[room.player1Key].setTurn(true);
+        }
+        else
+            mark = "ERROR OCCURED ABOVE LINE 62";
+
+        io.sockets.in(roomNum).emit('mark grid',id, mark);
+
     });
 
 
