@@ -18,14 +18,19 @@ $( function () {
     });
 
     $grid.on("click", function() {
+        // front end lock.
+        var mark = $(this).children();
+        if (mark.length > 0)
+            return;
+
         $( this ).css("background-color", "blue");
-            socket.emit("grid marked", this.id);
-            var background       = document.createElement('H1');
-            background.className = 'gridMark';
-            var mark            = document.createTextNode('X');
-            background.appendChild(mark);
-            this.appendChild(background);
-            //this.style.padding = "0px 0px 0px 0px";
+        socket.emit("grid marked", this.id);
+        var background       = document.createElement('H1');
+        background.className = 'gridMark';
+        var mark            = document.createTextNode('X');
+        background.appendChild(mark);
+        this.appendChild(background);
+        //this.style.padding = "0px 0px 0px 0px";
 
     });
 
