@@ -43,11 +43,11 @@ io.sockets.on('connection', function (socket) {
     // Player marked grid.
     socket.on('grid marked', function(id) {
         console.log('Grid Marked: %s', id);
-        if (grid[id] == null) {
+        if (grid[id] != null) {
+            console.log("grid taken by player already");
+        } else if (grid[id] == null) {
             grid[id] = socket._rooms[1]; // user socket id
             console.log("Grid Id: %s", grid[id]);
-        } else {
-            console.log("grid taken by player already");
         }
     });
 
@@ -72,9 +72,11 @@ io.sockets.on('connection', function (socket) {
 
         room.names.splice(room.names.indexOf(socket.username), 1);
 
-        if (room.player1Key === key) {
+        if (room.player1Key === key) { // player 1 left
             room.player1Key = room.player2Key;
             room.player2Key = '';
+        } else if (room.player2Key === key) { // player 2 left
+            players[room.player1Key].setTurn(false);
         }
         
         if (room.names.length == 0) {
@@ -225,6 +227,7 @@ function findRoomForUser(socket) {
             // then allow player1 to take a turn,
             var player1Key = room.player1Key;
             players[player1Key].setTurn(true);
+            players[player1Key].setPlayingStatus(true);
             
             //notify the clients its player1's turn to go in the room,
             io.sockets.in(roomNum).emit('player turn', players[player1Key].getName);
@@ -235,6 +238,7 @@ function findRoomForUser(socket) {
             player = new User(socket.username, player2Key);
             room.names.push(socket.username);
             updateUsernames(roomNum, room.names);
+            player.setPlayingStatus(true);
 
 
         } else console.log("error on line 225!");

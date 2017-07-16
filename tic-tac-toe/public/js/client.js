@@ -1,5 +1,10 @@
     // main function
 $( function () {
+    var notMobileDevice = detectmob() == false;
+    if (notMobileDevice) {
+        var page = document.getElementById('page');
+        page.setAttribute("id", "");
+    }
     var socket 	           = io.connect();
     var $playerTurnDisplay = $('#playerTurnDisplay');
     var $grid              = $('table#tic-tac-toe-grid td');
@@ -10,12 +15,18 @@ $( function () {
         $( this ).on("mouseout", function() {
             $( this ).css( "background-color", "blanchedalmond" );
         });
+    });
 
-        $( this ).on("click", function() {
-            $( this ).css("background-color", "blue");
-                socket.emit("grid marked", this.id);
+    $grid.on("click", function() {
+        $( this ).css("background-color", "blue");
+            socket.emit("grid marked", this.id);
+            var background       = document.createElement('H1');
+            background.className = 'gridMark';
+            var mark            = document.createTextNode('X');
+            background.appendChild(mark);
+            this.appendChild(background);
+            //this.style.padding = "0px 0px 0px 0px";
 
-        });
     });
 
     socket.on('player turn', function (username) {
@@ -64,3 +75,19 @@ $( function () {
         }
     });
 });
+
+function detectmob() {
+ if( navigator.userAgent.match(/Android/i)
+ || navigator.userAgent.match(/webOS/i)
+ || navigator.userAgent.match(/iPhone/i)
+ || navigator.userAgent.match(/iPad/i)
+ || navigator.userAgent.match(/iPod/i)
+ || navigator.userAgent.match(/BlackBerry/i)
+ || navigator.userAgent.match(/Windows Phone/i)
+ ){
+    return true;
+  }
+ else {
+    return false;
+  }
+}
