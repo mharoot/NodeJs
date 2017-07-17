@@ -12,7 +12,7 @@ let connections = []; // holds all user socket connections
 let rooms       = []; // holds all rooms
 let players     = []; // holds all of our class User objects, using key value
                       // to achieve a running time of O(1).
-let grid        = []; // holds all player marks that have been played on the grid
+let grid        = []; // holds all player marks that have been played on the grid *todo: every room has its own grid.
 
 
 server.listen(process.env.PORT || 3000);
@@ -57,14 +57,16 @@ io.sockets.on('connection', function (socket) {
             return;
         }
 
+        if(room.grid == null)
+            room.grid = [];
 
 
         //back end Lock for existing marks
-        if (grid[id] != null) {
+        if (room.grid[id] != null) {
             console.log("grid taken by player already");
-        } else if (grid[id] == null) {
-            grid[id] = socket._rooms[1]; // user socket id
-            console.log("Grid Id: %s", grid[id]);
+        } else if (room.grid[id] == null) {
+            room.grid[id] = socket._rooms[1]; // user socket id
+            console.log("Grid Id: %s", room.grid[id]);
         }
 
         
@@ -100,14 +102,18 @@ io.sockets.on('connection', function (socket) {
 
         connections.splice(connections.indexOf(socket), 1); // remove socket from connections
 
-        if (connections.length == 0) 
-            rooms = [];
+        if (connections.length == 0) // note for some reason when last connection disconnects the length is sometimes 1 or 0
+            rooms = [];              // further research i have discovered that this happens on a refresh
+                                     // doing a refresh crashes the application if there is only 1 player on the server
 
         deletePlayer(key); // delete player from players array
         console.log('Disconnected: %s sockets connected', connections.length);
 
         if (room == null) 
             return;
+        
+        room.grid = [];
+        io.sockets.in(roomNum).emit('clear grid');
 
         room.names.splice(room.names.indexOf(socket.username), 1);
 
@@ -119,7 +125,7 @@ io.sockets.on('connection', function (socket) {
         }
         
         if (room.names.length == 0) {
-            // this probably never fires since it would be null.
+            // this fires on refresh page error
             console.log('room has no names')
             room = null;
         }
@@ -323,7 +329,7 @@ function getRoom(roomName) {
  * @room  {Room}   room   - the room containing the player sockets
  **/
 function setPlayerTurn (player, turn, room) {
-    if (room === undefined)
+    if (room == null)
                 return;
 
     var playerKey;

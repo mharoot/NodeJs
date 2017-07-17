@@ -18,13 +18,13 @@ $( function () {
 
 
     // GRID FUNCTIONS
-    $grid.on( "mouseover", function() {
+    /*$grid.on( "mouseover", function() {
         $( this ).css( "background-color", "red" );
 
         $( this ).on("mouseout", function() {
             $( this ).css( "background-color", "blanchedalmond" );
         });
-    });
+    });*/
 
     $grid.on("click", function() {
         // front end lock.
@@ -32,12 +32,18 @@ $( function () {
         if (mark.length > 0)
             return;
 
-        $( this ).css("background-color", "blue");
+        //$( this ).css("background-color", "blue");
         socket.emit("grid marked", this.id);        //to do: mark for both player sockets in a room
     });
 
 
     // SOCKET FUNCTIONS
+    socket.on('clear grid', function() {
+        for (var i = 0; i < $grid.length; i++) {
+            $grid[i].innerHTML = '';
+        }
+    });
+
     socket.on('get users', function (data) {
         var html = '';
         for (i = 0; i < data.length; i++) {
