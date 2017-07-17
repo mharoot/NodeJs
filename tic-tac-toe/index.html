@@ -1,4 +1,4 @@
-<html>
+<html id="page">
 
 <head>
     <title>Tic-Tac-Toe</title>
@@ -6,12 +6,12 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="/styles/client.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1">
 </head>
 
 
 <body>
-<div class="container" id="page">
+<div class="container">
     <div id="userFormArea" class="row">
         <div class="col-md-12">
             <form id="userForm">
@@ -46,7 +46,7 @@
     <div id="userController" class="row">
         <div class="row">
             <div class="col-xs-12">
-                <table class="table" id="tic-tac-toe-grid">
+                <table id="tic-tac-toe-grid">
                     <tr>
                         <td id="1"></td>
                         <td id="2"></td>

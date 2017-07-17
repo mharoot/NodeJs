@@ -14,8 +14,7 @@ $( function () {
     if (notMobileDevice) {
         var page = document.getElementById('page');
         page.setAttribute("id", "");
-    }
-
+    } 
 
     // GRID FUNCTIONS
     /*$grid.on( "mouseover", function() {
@@ -101,6 +100,7 @@ $( function () {
 
 // detects if user is on a mobile device
 function detectmob() {
+
  if( navigator.userAgent.match(/Android/i)
  || navigator.userAgent.match(/webOS/i)
  || navigator.userAgent.match(/iPhone/i)
