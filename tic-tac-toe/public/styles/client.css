@@ -14,8 +14,8 @@ body{
 table#tic-tac-toe-grid {
     border-collapse: separate;
     table-layout: fixed;
-    width:100%;
-    height:60%;
+    width:80%;
+    height:50%;
     border: 1px solid black;
     padding:0px;
 }
@@ -39,9 +39,10 @@ table#tic-tac-toe-grid {
 h1.gridMark {
     color: #111;
     font-family: 'Helvetica Neue', sans-serif;
-    font-size: 400%;
+    font-size: 3em;
     font-weight: bold;
     letter-spacing: -1px;
-    line-height: 1;
+    line-height: 1; 
     text-align: center;
 }
+

@@ -14,7 +14,13 @@ $( function () {
     if (notMobileDevice) {
         var page = document.getElementById('page');
         page.setAttribute("id", "");
-    } 
+     }// else {
+    //     //dyamically calculate the height
+    //     var height = window.innerHeight/8;
+    //     for (var i = 0; i < $grid.length; i++) {
+    //         $grid[i].style.height = height;
+    //     }
+    // }
 
     // GRID FUNCTIONS
     /*$grid.on( "mouseover", function() {
@@ -53,7 +59,7 @@ $( function () {
     });
 
     socket.on('player turn', function (username) {
-        $playerTurnDisplay.append('<div class="well"><strong>'+username+' </strong> \'s turn to go!</div>');
+        $playerTurnDisplay.html('<div class="well"><strong>'+username+' </strong> \'s turn to go!</div>');
     });
 
     socket.on('player left', function () {
@@ -80,6 +86,10 @@ $( function () {
                 listGroup[i].parentElement.removeChild(listGroup[i]);
             }
         }
+    });
+
+    socket.on('winner!', function(username) {
+        $playerTurnDisplay.html('<div class="well"><strong>'+username+' </strong> \'s the WINNER!</div>');
     });
 
 

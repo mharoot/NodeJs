@@ -12,7 +12,6 @@ let connections = []; // holds all user socket connections
 let rooms       = []; // holds all rooms
 let players     = []; // holds all of our class User objects, using key value
                       // to achieve a running time of O(1).
-let grid        = []; // holds all player marks that have been played on the grid *todo: every room has its own grid.
 
 
 server.listen(process.env.PORT || 3000);
@@ -42,8 +41,8 @@ io.sockets.on('connection', function (socket) {
 
     // Player marked grid.
     socket.on('grid marked', function(id) {
-        var roomNum   = socket._rooms['0'];
-        var playerKey = socket._rooms['1'];
+        var roomNum   = socket._rooms[0];
+        var playerKey = socket._rooms[1];
         var room      = getRoom(roomNum);
         var mark      = '';
         var isPlayersTurn = players[playerKey].isPlayerTurn == true;
@@ -65,12 +64,12 @@ io.sockets.on('connection', function (socket) {
         if (room.grid[id] != null) {
             console.log("grid taken by player already");
         } else if (room.grid[id] == null) {
-            room.grid[id] = socket._rooms[1]; // user socket id
-            console.log("Grid Id: %s", room.grid[id]);
+            room.grid[id] = playerKey;
+            console.log("room.grid[id]: %s",room.grid[id])
+            
         }
 
         
-
 
 
 
@@ -79,16 +78,23 @@ io.sockets.on('connection', function (socket) {
             mark = 'X';
             players[room.player2Key].setTurn(true);
             players[room.player1Key].setTurn(false);
+            io.sockets.in(roomNum).emit('player turn', players[room.player2Key].getName);
+
         }
         else if (room.player2Key == playerKey) {
             mark = 'O';
             players[room.player2Key].setTurn(false);
             players[room.player1Key].setTurn(true);
+            io.sockets.in(roomNum).emit('player turn', players[room.player1Key].getName);
+
         }
         else
-            mark = "ERROR OCCURED ABOVE LINE 62";
+            mark = "ERROR OCCURED in socket.on(\'grid marked\')";
 
         io.sockets.in(roomNum).emit('mark grid',id, mark);
+        var winner = checkForWinner(room, playerKey);
+        if (winner != null)
+            io.sockets.in(roomNum).emit('winner!', winner.getName);
 
     });
 
@@ -163,6 +169,30 @@ io.sockets.on('connection', function (socket) {
 /******************************************************************************
                             UTILITY FUNCTIONS
 ******************************************************************************/
+
+function checkForWinner(room, playerKey) {
+    var grid = room.grid;
+
+    var row1 = grid[1] == grid[2] && grid[2] == grid[3] && grid[3] != null;
+    var row2 = grid[4] == grid[5] && grid[5] == grid[6] && grid[6] != null;
+    var row3 = grid[7] == grid[8] && grid[8] == grid[9] && grid[9] != null;
+
+    var col1 = grid[1] == grid[4] && grid[4] == grid[7] && grid[7] != null;
+    var col2 = grid[2] == grid[5] && grid[5] == grid[8] && grid[8] != null;
+    var col3 = grid[3] == grid[6] && grid[6] == grid[9] && grid[9] != null;
+
+    var diagonal1 = grid[1] == grid[5] && grid[5] == grid[9] && grid[9] != null;
+    var diagonal2 = grid[3] == grid[5] && grid[5] == grid[7] && grid[7] != null;
+
+    if (row1 == true || row2 == true || row3 == true ||
+        col1 == true || col1 == true || col1 == true ||
+        diagonal1 == true || diagonal2 == true
+    )
+        return players[playerKey];
+    else
+        return null;
+
+}
 
 /**
  * Creates a new room and joins a player socket into a Room object.
@@ -352,6 +382,8 @@ function setPlayerTurn (player, turn, room) {
 function updateUsernames(roomNum, users) {
     io.sockets.in(roomNum).emit('get users', users);
 }
+
+
 
 /******************************************************************************
                          END OF UTILITY FUNCTIONS
