@@ -93,8 +93,25 @@ io.sockets.on('connection', function (socket) {
 
         io.sockets.in(roomNum).emit('mark grid',id, mark);
         var winner = checkForWinner(room, playerKey);
-        if (winner != null)
+
+        if (winner != null) {
             io.sockets.in(roomNum).emit('winner!', winner.getName);
+
+            setTimeout(function () {
+                room.grid = [];
+                io.sockets.in(roomNum).emit('clear grid');
+
+                //if no players have left within these 3 seconds we can run this function to end.
+                if (players[room.player2Key] == null || players[room.player1Key] == null)
+                    return;
+
+                if (players[room.player2Key].isPlayerTurn)
+                    io.sockets.in(roomNum).emit('player turn', players[room.player2Key].getName);
+                else if (players[room.player1Key].isPlayerTurn)
+                    io.sockets.in(roomNum).emit('player turn', players[room.player1Key].getName);
+
+            }, 3000);
+        }
 
     });
 
