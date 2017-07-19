@@ -9,6 +9,8 @@ $( function () {
     var $userFormArea      = $('#userFormArea');
     var $username          = $('#username');
     var $users             = $('#users');
+    var $player1Score      = $('#player1Score');
+    var $player2Score      = $('#player2Score');
 
     var notMobileDevice = detectmob() == false;
     if (notMobileDevice) {
@@ -88,8 +90,13 @@ $( function () {
         }
     });
 
-    socket.on('winner!', function(username) {
+    socket.on('winner!', function(username, score, playerScoreToUpdate) {
+        if (playerScoreToUpdate == '1')
+            $player1Score.html(score);
+        else
+            $player2Score.html(score);
         $playerTurnDisplay.html('<div class="well"><strong>'+username+' </strong> \'s the WINNER!</div>');
+
     });
 
 

@@ -95,7 +95,14 @@ io.sockets.on('connection', function (socket) {
         var winner = checkForWinner(room, playerKey);
 
         if (winner != null) {
-            io.sockets.in(roomNum).emit('winner!', winner.getName);
+            winner.setScore(100);
+            var playerScoreToUpdate = '';
+            if (winner.getUUID == room.player1Key)
+                playerScoreToUpdate = '1';
+            else
+                playerScoreToUpdate = '2';
+
+            io.sockets.in(roomNum).emit('winner!', winner.getName, winner.getScore, playerScoreToUpdate);
 
             setTimeout(function () {
                 room.grid = [];
