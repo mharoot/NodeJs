@@ -63,36 +63,20 @@ io.sockets.on('connection', function (socket) {
         //back end Lock for existing marks
         if (room.grid[id] != null) {
             console.log("grid taken by player already");
+            return;
         } else if (room.grid[id] == null) {
             room.grid[id] = playerKey;
             console.log("room.grid[id]: %s",room.grid[id])
             
         }
 
-        
+        // lock players moving capabilties while there is a winner because of the three second wait time.
+        players[room.player2Key].setTurn(false);
+        players[room.player1Key].setTurn(false);
 
-
-
-
-        if (room.player1Key == playerKey) {
-            mark = 'X';
-            players[room.player2Key].setTurn(true);
-            players[room.player1Key].setTurn(false);
-            io.sockets.in(roomNum).emit('player turn', players[room.player2Key].getName);
-
-        }
-        else if (room.player2Key == playerKey) {
-            mark = 'O';
-            players[room.player2Key].setTurn(false);
-            players[room.player1Key].setTurn(true);
-            io.sockets.in(roomNum).emit('player turn', players[room.player1Key].getName);
-
-        }
-        else
-            mark = "ERROR OCCURED in socket.on(\'grid marked\')";
-
-        io.sockets.in(roomNum).emit('mark grid',id, mark);
         var winner = checkForWinner(room, playerKey);
+
+
 
         if (winner != null) {
             winner.setScore(100);
@@ -102,23 +86,65 @@ io.sockets.on('connection', function (socket) {
             else
                 playerScoreToUpdate = '2';
 
+            if (room.player1Key == playerKey) {
+                    mark = 'X';
+            } else
+                mark = 'O';
+
+            io.sockets.in(roomNum).emit('mark grid',id, mark);
             io.sockets.in(roomNum).emit('winner!', winner.getName, winner.getScore, playerScoreToUpdate);
 
-            setTimeout(function () {
+
+             setTimeout(function () {
                 room.grid = [];
                 io.sockets.in(roomNum).emit('clear grid');
-
                 //if no players have left within these 3 seconds we can run this function to end.
                 if (players[room.player2Key] == null || players[room.player1Key] == null)
                     return;
 
-                if (players[room.player2Key].isPlayerTurn)
+                // traditionally the loser gets to go first
+                if (players[room.player2Key] != winner) {
+                    players[room.player2Key].setTurn(true);
                     io.sockets.in(roomNum).emit('player turn', players[room.player2Key].getName);
-                else if (players[room.player1Key].isPlayerTurn)
+
+                } else if (players[room.player1Key] != winner) {
+                    players[room.player1Key].setTurn(true);
                     io.sockets.in(roomNum).emit('player turn', players[room.player1Key].getName);
+                }
 
             }, 3000);
+        } else if ( winner == null) {
+            if (room.player1Key == playerKey) {
+                mark = 'X';
+                players[room.player2Key].setTurn(true);
+                players[room.player1Key].setTurn(false);
+                io.sockets.in(roomNum).emit('player turn', players[room.player2Key].getName);
+            }
+            else if (room.player2Key == playerKey) {
+                mark = 'O';
+                players[room.player2Key].setTurn(false);
+                players[room.player1Key].setTurn(true);
+                io.sockets.in(roomNum).emit('player turn', players[room.player1Key].getName);
+            }
+            else
+                mark = "ERROR OCCURED in socket.on(\'grid marked\')";
+            
+            io.sockets.in(roomNum).emit('mark grid',id, mark);
+        } 
+
+        //check if cats game. getting room.grid.length == 9 didn't work for some reason it grows to 9 after 4 to  5 marks.'
+
+        var isCatsGame = true;
+        for (var i = 1; i < 10; i++)
+            if (room.grid[i] == null) 
+                isCatsGame = false;
+
+        if (isCatsGame) {
+            room.grid = [];
+            io.sockets.in(roomNum).emit('clear grid');
         }
+        
+
 
     });
 
@@ -209,7 +235,7 @@ function checkForWinner(room, playerKey) {
     var diagonal2 = grid[3] == grid[5] && grid[5] == grid[7] && grid[7] != null;
 
     if (row1 == true || row2 == true || row3 == true ||
-        col1 == true || col1 == true || col1 == true ||
+        col1 == true || col2 == true || col3 == true ||
         diagonal1 == true || diagonal2 == true
     )
         return players[playerKey];
