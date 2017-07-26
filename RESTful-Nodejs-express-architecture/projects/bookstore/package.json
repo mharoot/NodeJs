@@ -4,13 +4,21 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "SET NODE_ENV=dev && node app.js",
+    "test": "mocha --timeout 3000"
   },
   "dependencies": {
-    "express":"*",
-    "body-parser":"*",
-    "mongoose":"*"
+    "body-parser": "*",
+    "config": "^1.26.1",
+    "express": "*",
+    "mongoose": "*",
+    "morgan": "^1.8.2"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.4.2"
+  }
 }

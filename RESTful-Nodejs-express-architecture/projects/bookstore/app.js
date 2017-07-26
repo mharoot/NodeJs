@@ -1,16 +1,20 @@
-const express    = require('express');
-const app        = express();
-const bodyParser = require('body-parser');
-const mongoose   = require('mongoose');
+"use strict";
+let express    = require('express');
+let app        = express();
+let config     = require('config'); //we load the db location from the JSON files
+let bodyParser = require('body-parser');
+let mongoose   = require('mongoose');
+let options    = {
+    useMongoClient: true,
+};
 app.use(bodyParser.json());
 
-Genre            = require('./models/genre');
-Book             = require('./models/book');
+let Genre            = require('./models/genre');
+let Book             = require('./models/book');
 // Connect to Mongoose
-mongoose.connect('mongodb://localhost/bookstore', {
-    useMongoClient: true,
-});
-const database   = mongoose.connection;
+mongoose.connect(config.DBHost, options);
+let database   = mongoose.connection;
+
 
 
 // GETS
@@ -117,3 +121,5 @@ app.delete('/api/books/:_id', function (req, res) {
 
 app.listen(3000);
 console.log('Running on port 3000');
+
+module.exports = app;
