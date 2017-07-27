@@ -7,6 +7,8 @@ let mongoose   = require('mongoose');
 let options    = {
     useMongoClient: true,
 };
+
+app.use(express.static(__dirname + '/client'));
 app.use(bodyParser.json());
 
 let Genre            = require('./models/genre');
