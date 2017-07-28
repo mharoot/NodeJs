@@ -6,10 +6,22 @@
     <div class="row">
       <div class="col-md-12">
         <form ng-submit="addBook()">
+        <!--author  -->
         <div class="form-group">
-            <label>Title</label>
-            <input type="text" class="form-control" name="title" ng-model="book.title" placeholder="Title" required="true">
+            <label>Author</label>
+            <input type="text" class="form-control" name="author" ng-model="book.author" placeholder="Author" required="true">
         </div>
+        <!-- buy_link  -->
+        <div class="form-group">
+            <label>Buy Link</label>
+            <input type="text" class="form-control" name="buy_link" ng-model="book.buy_link" placeholder="Buy Link" required="false">
+        </div> 
+        <!-- description  -->
+        <div class="form-group">
+            <label>Description</label>
+            <textarea type="text" class="form-control" name="description" ng-model="book.description" placeholder="Description" required="false"></textarea>
+        </div>
+        <!-- genre  -->
         <div class="form-group">
             <label>Genre</label>
             <select ng-model="book.genre" type="text" class="form-control" required="true">
@@ -20,14 +32,27 @@
                 <option value="Other">Other</option>
             </select>
         </div>
+        <!-- image_url  -->
         <div class="form-group">
-            <label>Author</label>
-            <input type="text" class="form-control" name="author" ng-model="book.author" placeholder="Author" required="true">
+            <label>Image Url</label>
+            <input type="text" class="form-control" name="image_url" ng-model="book.image_url" placeholder="Image Url" required="false">
         </div>
+        <!-- pages  -->
         <div class="form-group">
-            <label>Description</label>
-            <input type="text" class="form-control" name="description" ng-model="book.description" placeholder="Description" required="false">
+            <label>Pages</label>
+            <input type="text" class="form-control" name="pages" ng-model="book.pages" placeholder="Pages" required="true">
         </div>
+        <!-- publisher  -->
+        <div class="form-group">
+            <label>publisher</label>
+            <input type="text" class="form-control" name="publisher" ng-model="book.publisher" placeholder="Publisher" required="false">
+        </div>
+        <!-- title  -->
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" name="title" ng-model="book.title" placeholder="Title" required="true">
+        </div>
+
         <button type="submit" class="btn btn-default">Submit</button>
         </form>
       </div>

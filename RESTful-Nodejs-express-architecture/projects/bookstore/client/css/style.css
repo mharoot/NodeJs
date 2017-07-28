@@ -1,1 +1,10 @@
 img{width:100%;}
+.bookDescriptions{
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height:20%; /* fallback */
+}

@@ -10,11 +10,19 @@
         <div class="col-md-8">
             <p>{{book.description}}</p>
             <ul class="list-group">
-                <li class="list-group-item">Genre: {{book.genre}}</li>
+                <!-- author      : book.author,
+        description : book.description,
+        genre       : book.genre,
+        image_url   : book.image_url,
+        pages       : book.pages,
+        publisher   : book.publisher,
+        title       : book.title   -->
                 <li class="list-group-item">Author: {{book.author}} </li>
-                <!-- <li class="list-group-item"></li>
-                <li class="list-group-item"></li> -->
+                <li class="list-group-item">Genre: {{book.genre}}</li>
+                <li class="list-group-item">Pages: {{book.pages}}</li>
+                <li class="list-group-item">Publisher: {{book.publisher}}</li> 
             </ul>
+            <a class="btn btn-success" href="{{ book.buy_link }}"> Buy Now!</a>
         </div>
     </div>
   </div>

@@ -1,47 +1,72 @@
-var mongoose = require('mongoose');
+"use strict";
+let mongoose = require('mongoose');
 
 // Books Schema (Schema - is not required for db just for application)
-var genreSchema = mongoose.Schema({
-    title: {
+let bookSchema = mongoose.Schema({
+
+    author:{
         type:String,
         required:true,
+        maxlength:200
     },
-    genre:{
-        type:String,
-        required:true,
-    },
-    description:{
+    buy_link: {
         type:String,
         required:false,
-    },
-    author: {
-        type:String,
-        required:true,
+        maxlength:500
     },
     create_date: {
         type:Date,
         default:Date.now
+    },
+    description:{
+        type:String,
+        required:false,
+        maxlength:2000
+    },
+    genre:{
+        type:String,
+        required:true,
+        maxlength:50
+    },
+    image_url:{
+        type:String,
+        required:false,
+        maxlength:500
+    },
+    pages:{
+        type:Number,
+        required:true,
+        maxlength:5
+    },
+    publisher:{
+        type:String,
+        required:false,
+        maxlength:200
+    },
+    title: {
+        type:String,
+        required:true,
+        maxlength:200
     }
 });
 
 
-var Book = module.exports = mongoose.model( 'Book', genreSchema );
+let Book = module.exports = mongoose.model( 'Book', bookSchema );
 
 // Get Books
 module.exports.getBooks = function ( callback, limit ) {
-    //find returns all limit limts the number of results returned
+    //find():  returns all 
+    //limit(): limits the number of results returned
     Book.find(callback).limit(limit);
 }
 
 // Get Book By ID
 module.exports.getBookById = function ( id, callback ) {
-    //find returns all limit limts the number of results returned
     Book.findById( id, callback );
 }
 
 // Add Book
 module.exports.addBook = function ( book, callback ) {
-    //find returns all limit limts the number of results returned
     Book.create( book, callback );
 }
 
@@ -49,10 +74,14 @@ module.exports.addBook = function ( book, callback ) {
 module.exports.updateBook = function ( id, book, options,callback ) {
     var query  = { _id : id };
     var update = {
-        title : book.title,
+        author      : book.author,
+        buy_link    : book.buy_link,
         description : book.description,
-        author : book.author,
-        genre : book.genre
+        genre       : book.genre,
+        image_url   : book.image_url,
+        pages       : book.pages,
+        publisher   : book.publisher,
+        title       : book.title
     };
 
     Book.findOneAndUpdate(query, update, options, callback);

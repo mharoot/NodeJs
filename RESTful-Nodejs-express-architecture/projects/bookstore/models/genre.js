@@ -18,7 +18,8 @@ var Genre = module.exports = mongoose.model( 'Genre', genreSchema );
 
 // Get Genres
 module.exports.getGenres = function ( callback, limit ) {
-    //find returns all limit limts the number of results returned
+    //find():  returns all 
+    //limit(): limits the number of results returned
     Genre.find( callback ).limit( limit );
 }
 

@@ -18,57 +18,35 @@ myApp.controller('BooksController', ['$scope', '$http', '$location', '$routePara
     }
 
     $scope.addBook = function () {
-        $http.post('/api/books/', $scope.book).then(addBookSuccessCallback, errorCallback);
+        $http.post('/api/books/', $scope.book).then(redirectBooksSuccessCallback, errorCallback);
     }
 
     $scope.updateBook  = function () {
         var id = $routeParams.id;
-        $http.put('/api/books/'+id,  $scope.book).then(updateBookSuccessCallback, errorCallback);
+        $http.put('/api/books/'+id,  $scope.book).then(redirectBooksSuccessCallback, errorCallback);
     }
 
     $scope.removeBook  = function (id) {
-        $http.delete('/api/books/'+id).then(removeBookSuccessCallback, errorCallback);
+        $http.delete('/api/books/'+id).then(redirectBooksSuccessCallback, errorCallback);
     }
 
-    function addBookSuccessCallback() {
-        window.location.href="#/books";
-    }
 
     function getBookSuccessCallback(response){
         //success code
-        //added this to display image for fun since I did not bother adding image to book schema
-        if (response.data._id == '59711bf53bf39ddca19bf171') {
-            //murder house
-            response.data.image_url = 'https://images-na.ssl-images-amazon.com/images/I/51PLGSRsv4L._SX273_BO1,204,203,200_.jpg';
-        } else {
-            response.data.image_url = 'https://ewedit.files.wordpress.com/2016/09/hpsorcstone.jpg?w=405';
-        }
-
         $scope.book = response.data;
-
-
-        console.log("logging book now...");
         console.log($scope.book);
     }
 
+
     function getBooksSuccessCallback(response){
         //success code
-        console.log("Response put in books!");
-        response.data[0].image_url = 'https://images-na.ssl-images-amazon.com/images/I/51PLGSRsv4L._SX273_BO1,204,203,200_.jpg';
-        response.data[1].image_url = 'https://ewedit.files.wordpress.com/2016/09/hpsorcstone.jpg?w=405';
         $scope.books = response;
-        console.log($scope.books.data);
     }
 
 
-    function removeBookSuccessCallback(response) {
+    function redirectBooksSuccessCallback(response) {
         window.location.href="#/books";
     }
-
-    function updateBookSuccessCallback(response) {
-        window.location.href="#/books";
-    }
-
 
     function errorCallback(error){
         console.log("ERROR!");
