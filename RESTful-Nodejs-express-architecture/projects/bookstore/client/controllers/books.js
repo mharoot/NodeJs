@@ -33,8 +33,10 @@ myApp.controller('BooksController', ['$scope', '$http', '$location', '$routePara
     function addBookSuccessCallback() {
         window.location.href="#/books";
     }
+
     function getBookSuccessCallback(response){
         //success code
+        //added this to display image for fun since I did not bother adding image to book schema
         if (response.data._id == '59711bf53bf39ddca19bf171') {
             //murder house
             response.data.image_url = 'https://images-na.ssl-images-amazon.com/images/I/51PLGSRsv4L._SX273_BO1,204,203,200_.jpg';

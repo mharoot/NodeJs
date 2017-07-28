@@ -18,7 +18,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let app = require('../app');
 let should = chai.should();
-let expect = chai.expect();
+// let expect = chai.expect(); not working for some reason.. need to use chai.expect(object) everytime.
 
 var err = new ReferenceError('This is a bad function.'); 
 var fn = function () { throw err; } 
@@ -78,10 +78,30 @@ describe('Books', () => {
                     .send(book)
                     .end((err, res) => {
                         res.should.have.status(200);
+
+                        //properties, types, and requirements
+                        res.body.should.have.property('_id');
+                        res.body._id.should.be.a('string');
+
+                        res.body.should.have.property('author');
+                        res.body.author.should.be.a('string');
+
+                        res.body.should.have.property('title');
+                        res.body.title.should.be.a('string');
+
+
+                        res.body.should.have.property('genre');
+                        res.body.genre.should.be.a('string');
+                        //res.body.genre.should.not.be.selected; // doesn't do anything
+                        //res.body.genre.should.be.selected; // doesn't do anything
+
+                        res.body.should.have.property('description');
+                        res.body.description.should.be.a('string');
                         done();
                     });
             });
         });
+
     });
 
 
@@ -165,6 +185,10 @@ describe('Books', () => {
                     .send(updatedBook)
                     .end( (err, res) => {
                         res.should.have.status(200);
+                        // res.body.should.have.property('genre');
+                        // res.body.genre.should.be.a('string');
+                        // //res.body.genre.should.not.be.selected;
+                        // res.body.genre.should.be.selected;
                         done();
                     });
             });
@@ -188,7 +212,16 @@ describe('Books', () => {
                 chai.request(app)
                     .delete('/api/books/' + book.id)
                     .end( (err, res) => {
+
+                        // there should be nothing wrong with the url we went to
                         res.should.have.status(200);
+
+                        // since we have an html page, the resulting body should be a object
+                        res.body.should.be.a('object');
+
+                        // the length of the body of the html page should not equal 0
+                        chai.expect(res.body.length).not.equal(0);
+
                         done();
                     })
             });
