@@ -1,0 +1,33 @@
+{
+  "name": "karma-tutorial",
+  "version": "1.0.0",
+  "description": "Introductory guide for TDD using AngularJS with karma.",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start karma.conf.js"
+  },
+  "devDependencies": {
+    "jasmine-core": "^2.2.0",
+    "karma": "^0.12.31",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-cli": "^1.0.1",
+    "karma-jasmine": "^0.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mharoot/nodejs.git"
+  },
+  "keywords": [
+    "TDD",
+    "BDD",
+    "AngularJS",
+    "Javascript",
+    "Karma"
+  ],
+  "author": "Michael Harootoonyan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mharoot/nodejs/issues"
+  },
+  "homepage": "https://github.com/mharoot/nodejs#readme"
+}
