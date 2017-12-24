@@ -13,6 +13,11 @@
 
 --------------------------------------------------------------------------------
 
+#Messaging Patterns
+- PUB/SUB
+- REQ/REP
+- PUSH/PULL
+
 #zmq-watcher-pub.js - Publishing Messages over TCP part PUB
 - Demonstrates the publish/subscribe pattern (PUB/SUB) in networking.
 - zmq deals with the message boundary problem, how to handle network interupts, or server restarts.
@@ -130,3 +135,53 @@
  - On line 12, the DEALER socket binds an interporcess connection (IPC) endpoint.  
  - By convntion, zmq IPC files should end in the file extension .ipc.  In this case, the file-dealer.ipc file will be created in the current working directory that the cluster was launced from (if it doesn't exist already).
  - run it: node --harmony zmq-filer-rep-cluster.js
+
+ ------------------------------------------------------------------------------
+
+ #Messaging Pattern PUSH/PULL - Pushing Jobs to Workers
+ - The PUSH and PULL socket types are useful when you have a queue of jobs that oyu want to faily assign among a poool of available workers.
+ - Recall that with a PUB/SUB pair, each subscriber will recieve all messages sent by the publisher.  In a PUSH/PULL setup, only one puller will recieve each message sent by the pusher.
+ - So PUSH will round-robin-distribute messages to connected sockets, just like the DEALER.  But unlike the DEALER/ROUTER flow, there is no backchanne.  A message traveling from a PUSH socket to a PULL socket is one-way; the puller can not send a response back through the same socket.
+ - Here's a quick example showing how to set up a PUSH socket and distribute 100 jobs.  Note the example is incomplete--it does not call bind() or connect()--but it does demonstrate the concept.
+ const 
+   zmq = require('zmq'),
+   pusher = zmq.socket('push');
+ // wait until pullers are connected and read, then send 100 jobs ...
+ for (let i = 0; i < 100; i++) {
+     pusher.send(JSON.stringify({
+         details: "details about this job."
+     }));
+ }
+ - Here's an associated PULL socket.
+ const 
+   zmq = require('zmq'),
+   puller = zmq.socket('pull');
+ // connect to the pusher, announce readiness to work, then wait for work...
+ puller.on('message', function(data) {
+     let job = JSON.parse(data.toString());
+
+     // do the work described in the job
+ });
+
+ - Like with zmq sokcets, either end of a PUSH/PULL pair can bind or connect--the choice comes down to which is the stabe part of the architecture.
+
+ ------------------------------------------------------------------------------
+
+ #PUSH/PULL - Avoiding Common Pitfalls
+ - First-joiner problem
+ - limited-resource problem
+ 
+ ------------------------------------------------------------------------------
+ 
+ #PUSH/PULL - First-joiner Problem
+ - Since it takes time to establish a connection, the first puller to successfully connect will pull many or all of the available messages before the second joiner even has a chance to get into the rotation.
+ - Fix: The pusher needs to wait until all of the pullers are ready to recieve messages before pushing any.  Let us consider a real-world scenario and how we'd solve it.
+ - Say you have a Node cluster, and the master process plans to PUSH a bunch of jobs to three worker processes.  Before the master can start pushing, the workers need a way to signal back to the master that they're ready to start pulling jobs.  They also need a way to communicate the results of the jobs that they'll eventually complete.
+ - Note, however, that this is just one solution to the first-joiner problem.  You could choose to use a different messaging pattern for the backchannel, like request/reply.
+
+ ------------------------------------------------------------------------------
+ #PUSH/PULL - Limited-Resource Problem
+ - Node.js is at the mercy of the operating system with respect to the number of resources it can access at the same time.
+ - Whenever your Node program opens a file or a TCP connection, it uses one of its available file descriptors.  When there are not left, Node will start failing to connect to resources when asked.  This is an extremely common problem for Node.js developers.  
+ - This problem is not limited to the PUSH/PULL scenario, but it is very likely to happen there, and here is why.  Since Node.js is asynchronous, the puller process can start working on many jobs simultaneously.  Every time a message event comes in, the Node process invokes teh handler and starts working on the job.  If these jobs require accesing system resources--and they almost certainly will--you are liable to exhaust the pool of file descriptors.  The jobs will quicky start failing.
+ 
