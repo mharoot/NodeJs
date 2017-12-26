@@ -1,0 +1,12 @@
+{
+  "name": "book-tools",
+  "version": "0.1.0",
+  "description": "Tools for creating an ebook database.",
+  "author": "Michael Harootoonyan <michaelharootoonyan@gmail.com> (https://github.com/mharoot/NodeJS)",
+  "dependencies": {
+    "async": "^2.6.0",
+    "cheerio": "^1.0.0-rc.2",
+    "file": "^0.2.2",
+    "request": "^2.83.0"
+  }
+}
