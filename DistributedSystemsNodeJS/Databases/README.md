@@ -166,3 +166,22 @@ rdfParser(path, function(err, doc) {
   - Error: Error: write ECONNRESET
   - If you do reduce the number of concurrent connectoions form 1000 to 10.
 
+-------------------------------------------------------------------------------
+
+### Querying Data with Mapreduce Views
+- Different databases have different ways of querying data, but most include some concept of *indexing*.  When you index data in a database, you make it available for quick retrieval by some field or attribute of the data.
+- With CouchDB, you write mapreduce functions, which produce *views*.  A view is a kind of index that maps values back to documents.  With a view, you can query for documents with particular attributes or fields--like finding a book by its author.
+
+#### Cross-Environment Scripting with Node
+- Sometimes the JavaScript code you write might be destined for a different environment.  Writing JavaScript in one environmeny but executing it in another.  The following script contains functions in Node that we intend to run in CouchDB.
+- *lib/views.js*
+
+#### Callback Chaining with async.waterfall
+- CouchDB stores views in special documents called *design* documents.  You use regular REST commands to add and remove design documents, just like you would any other documents.  So we need to PUT into CouchDB a design document that contains our views.
+- *make-views.js*
+- make executable:
+  - sudo chmod +x make-views.js
+- If this is your first time running this program, there will not be a *_design/books* document yet and the request will return a 404 Not Found status code.
+  - ./make-views.js
+- After running its and getting a 201, we should now be able to query the views, via REST. Using our database command line interface program we can do by running the following:
+  - ./dbcli.js GET books/_design/books/_view/by_author?group=true
