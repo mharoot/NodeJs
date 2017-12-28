@@ -81,6 +81,8 @@ require('./lib/bundle.js')(config, app);
 - Let us run the server and then we will dig into the API modules.  This time, instead of using *npm start*, we will use *nodemon*.  Short for "Node Monitor", *nodemon* runs a Node.js program and then automatically restarts it whenever the source code changes.
 - To get *nodemon*, install it globally through npm:
   - sudo npm install -g nodemon
+- Run it:
+  - nodemon --harmony server.js
 
 ### Implementing Search APIs
 - To build a book bundle, a user has to be able to discover books to add to it.  So our modular web service will have two search APIs: 
@@ -88,5 +90,8 @@ require('./lib/bundle.js')(config, app);
   - book search (for finding books by a given author or subject)
 - The field search API helps users to find authors or subjecs based on a starting string. For example, to get a list of subjects that start with *'Croc'*, you would make a request on the command line like this:
   - curl http://localhost:3000/api/search/subject?q=Croc
+  - curl http://localhost:3000/api/search/book/by_author?q=Giles,%20Lionel
+  - curl http://localhost:3000/api/search/book/by_subject?q=War
   - This API could be employed, for instance, in a user interface so that when a user starts typing a subject, suggestions automatically pop up.
 - *b4/lib/field-search.js*
+
