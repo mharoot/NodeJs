@@ -48,3 +48,17 @@ server.listen(3000, function() {
 
 ### Writing Modular Express Services
 - RESTful web service with Express for creating and managing book bundles.  These are basically named reading lists.  Our app will be called Better Book Bundle Builder (or b4 for short).
+- It will communicate with two databases: the *books* database and the *b4* database.
+- To the *b4* application, the *books* database is read-only (we will not add, delete, or overwrite any documents in it).
+- The *b4* database will store user data, including the book bundles that users make.
+
+#### Creating the *b4* database
+1. Make sure couchdb is running:
+  - start couchdb
+2. Then use:
+  - curl -X PUT http://root:password@localhost:5984/b4
+  - {"ok":true} 
+
+-------------------------------------------------------------------------------
+
+# Separating Server Code into Modules
