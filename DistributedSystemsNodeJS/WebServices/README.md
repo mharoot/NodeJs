@@ -62,3 +62,31 @@ server.listen(3000, function() {
 -------------------------------------------------------------------------------
 
 # Separating Server Code into Modules
+- Just like our Hello World example, the main entry point for the b4 service is the server.js file.  But instead of assigning a handler with app.get() directly, now we specify some configuartion parameters and pull in the API modules.
+
+- Here is the part of *b4/server.js* that differs from the Hello World version:
+```javascript
+const config = {
+  bookdb: 'http://root:password@localhost:5984/books/',
+  b4dv: 'http://root:password@localhost:5984/b4/'
+};
+/*
+Each of the three API modules is a function that takes two arguments: our config hash and the Express *app* to add routes to.
+*/
+require('./lib/book-search.js')(config, app);
+require('./lib/field-search.js')(config, app);
+require('./lib/bundle.js')(config, app);
+```
+
+- Let us run the server and then we will dig into the API modules.  This time, instead of using *npm start*, we will use *nodemon*.  Short for "Node Monitor", *nodemon* runs a Node.js program and then automatically restarts it whenever the source code changes.
+- To get *nodemon*, install it globally through npm:
+  - sudo npm install -g nodemon
+
+### Implementing Search APIs
+- To build a book bundle, a user has to be able to discover books to add to it.  So our modular web service will have two search APIs: 
+  - field search (for discovering authors and subjects) 
+  - book search (for finding books by a given author or subject)
+- The field search API helps users to find authors or subjecs based on a starting string. For example, to get a list of subjects that start with *'Croc'*, you would make a request on the command line like this:
+  - curl http://localhost:3000/api/search/subject?q=Croc
+  - This API could be employed, for instance, in a user interface so that when a user starts typing a subject, suggestions automatically pop up.
+- *b4/lib/field-search.js*
