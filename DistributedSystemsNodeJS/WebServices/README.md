@@ -127,9 +127,9 @@ app.post('/api/bundle', function(req, res) {
 
   deferred.promise.then(function(args) {
     let couchRes = args[0], body = args[1];
-    res.json(couchRes.StatusCode, body);
+    res.status(couchRes.StatusCode).json(body);
   }, function(err) {
-    res.json(502, { error: "bad_gateway", reason: err.code });
+    res.status(502).json({ error: "bad_gateway", reason: err.code });
   });
 });
 ```
@@ -144,9 +144,9 @@ app.get('api/bundle/:id', function(req, res) {
   Q.nfcall(request.get, config.b4db + '/' + req.params.id)
     .then(function(args) {
       let couchRes = args[0], bundle = JSON.parse(args[1]);
-      res.json(couchRes.statusCode, bundle);
+      res.status(couchRes.statusCode).json(bundle);
     }, function(err) {
-      res.json(502, { error: "bad_gateway", reason: err.code });
+      res.status(502).json({ error: "bad_gateway", reason: err.code });
     })
     .done();
 });
@@ -162,29 +162,30 @@ app.get('api/bundle/:id', function(req, res) {
 ### Updating a Resource through PUT with chained promise
 - We have looked at a couple of GET routes and one POST so far.  Here we will examine the code to update a bundle's *name* property, which uses HTTP PUT.  This code uses promises to manage asynchronous behavior to an even greater extent that previous APIs we have seen.  Here's the code for the PUT route that powers setting a bundle's name:
 ```javascript
-app.put('/api/bundle/:id/name/:name', function(req, res) {
-  Q.nfcall(request.get, config.b4db + '/' + req.params.id)
-    .then(function(args) {
-      let couchRes = args[0], bundle = JSON.parse(args[1]);
-      if (couchRes.statusCode !== 200) {
-        return [couchRes, bundle];
-      }
-
-      bundle.name = req.params.name;
-      return Q.nfcall(request.put, {
-        url: config.b4db + '/' + req.params.id,
-        json: bundle
+  app.put('/api/bundle/:id/name/:name', function(req, res) {
+    Q.nfcall(request.get, config.b4db + '/' + req.params.id)
+      .then(function(args) {  
+        let couchRes = args[0], bundle = JSON.parse(args[1]);
+        
+        if (couchRes.statusCode !== 200) {
+          return [couchRes, bundle];  
+        }
+        
+        bundle.name = req.params.name;
+        return Q.nfcall(request.put, {  
+          url: config.b4db + '/' + req.params.id,
+          json: bundle
+        });
+        
+      })
+      .then(function(args) {  
+        let couchRes = args[0], body = args[1];
+        res.status(couchRes.statusCode).json(body);
+      })
+      .catch(function(err) {  
+        res.status(502).json( { error: "bad_gateway", reason: err.code });
       });
-    })
-    .then(function(args) {
-      let couchRes = args[0], body = args[1];
-      res.json(couchRes.statusCode, body);
-    })
-    .catch(function(err) {
-      res.json(502, { error: "bad_gateway", reason: err.code });
-    })
-    .done();
-});
+  });
 ```
 - This enpoint starts off much like the GET bundle API.  It invokes *request.get* through *Q.nfcall()* to make a promise, and proceeds to use the *then()* method to handle the response.
 - Now, an important thing to understand about *then()* is that it returns a new promise that will be fulfilled or rejected depending on what happens in *then's* success and failure callbacks.  In other words, when you call *then()* on a promise, you set up a *promise chain*; each promise depends on the one that came before.
@@ -231,3 +232,109 @@ callback();
   - done--either true or false; indicates wheter the generator function has run to completion.
   - value--the last value yielded or returned.
 - So the callback function checks wheter the generator still has more to do, and if so, logs the yielded value and sets a timeout to check again in one second.
+
+####Generators and Asynchronous Code
+- Generators offer a clever way to deal with asynchronous code, given that they have the ability to pause their execution indefinitely.  The *countdown* example does not show it, but inside your generator function, you can grab the value coming in through *yeild*.
+- For example, say your generator function contains the following line:
+```javascript
+let x = yield;
+```
+- In this case, the value of x would be whatever was passed into *generator.next()* while it was suspended on the *yeild*.  So if you called *generator.next(8)*, then x would be 8.
+- When the generator function and the calling code cooperate, you can do some really neat things.  Consider this line from a hypothetical generator function:
+```javascript
+let data = yield "./my-yext-file.txt";
+```
+- This line suspends execution after yielding the string "./my-text-file.txt" and expects to continute when it recieves the data from that file.  If the calling code knows to treat the string as a filename, it could do something like *fs.readFile()* and then pass the data back to the generator with *generator.next(data)*.
+
+#### Using Generators with Promises
+- Let us return to our Express APIs for working with the book bundles. So far we have ways of creating and retrieving bundles, and we can update the *name* property of a bundle.
+- Now we will make an API for adding books to a bundle using the PUT HTTP verb.  This code will have to make several asynchronous calls: one to get the existing bundle, one to get book details, and one to put the bundle data back.  To do all this, we will use promises and generators to flatten and simplify the chain of operations.
+
+
+##### Using the Put book API
+Before we get into the code, let us take a look at how this API works.  That way, when we dive into the code it will be more clear about what it does.
+
+1. To use the PUT book API, we need a bundle, so make one with the POST API through *curl*
+  - curl -X POST http://localhost:3000/api/bundle?name=War%20Books
+  ```json
+  {"ok":true,"id":"5155969a0714e262097d3c81b8000071","rev":"1-d90a9d2a08880d9f29e6fa4515702d50"}
+  ```
+
+2. Request the bundle with GET to see what is in it so far (your bundle ID may be different):
+  - curl http://localhost:3000/api/bundle/5155969a0714e262097d3c81b8000071
+  ```json
+  {"_id":"5155969a0714e262097d3c81b8000071","_rev":"1-d90a9d2a08880d9f29e6fa4515702d50","type":"bundle","name":"War Books","books":{}}
+  ```
+3. Then, let us add Sunzi's *The Art of War* (Project Gutenberg ID 132):
+  - curl -X PUT http://localhost:3000/api/bundle/5155969a0714e262097d3c81b8000071/book/132
+  ```json
+  {"ok":true,"id":"5155969a0714e262097d3c81b8000071","rev":"2-58aad9ea25605877e3f4dc562a368fce"}
+  ```
+4. Finally, let us see what was added to the bundle:
+  - curl http://localhost:3000/api/bundle/5155969a0714e262097d3c81b8000071
+  ```json
+  {
+    "_id":"5155969a0714e262097d3c81b8000071",
+    "_rev":"2-58aad9ea25605877e3f4dc562a368fce",
+    "type":"bundle",
+    "name":"War Books",
+    "books":{
+      "132":"The Art of War"
+    }
+  }
+  ```
+5. Great success!  The "War Books" bundle now contains *The Art of War*.
+
+### Yielding Promises With Q.async
+- Let us take a look at the PUT handler that made this happen.  This will be the last, but most complex code block in *b4/lib/bundle.js*.
+- Here is the section that implements adding a book to a bundle with PUT:
+```javascript
+  app.put('/api/bundle/:id/book/:pgid', function(req, res) {
+    
+    let
+      get = Q.denodeify(request.get), 
+      put = Q.denodeify(request.put);
+    
+    Q.async(function* (){  
+      
+      let args, couchRes, bundle, book;
+      
+      // grab the bundle from the b4 database
+      args = yield get(config.b4db + req.params.id); 
+      couchRes = args[0];
+      bundle = JSON.parse(args[1]);
+      
+      // fail fast if we couldn't retrieve the bundle
+      if (couchRes.statusCode !== 200) {
+        res.status(couchRes.statusCode).json(bundle);
+        return;
+      }
+      
+      // look up the book by its Project Gutenberg ID
+      args = yield get(config.bookdb + req.params.pgid); 
+      couchRes = args[0];
+      book = JSON.parse(args[1]);
+      
+      // fail fast if we couldn't retrieve the book
+      if (couchRes.statusCode !== 200) {
+        res.status(couchRes.statusCode).json(book);
+        return;
+      }
+      
+      // add the book to the bundle and put it back in CouchDB
+      bundle.books[book._id] = book.title;
+      args = yield put({url: config.b4db + bundle._id, json: bundle});
+      res.status(args[0].statusCode).json(args[1]);
+      
+    })()  
+    .catch(function(err) {  
+      res.status(502).json( { error: "bad_gateway", reason: err.code });
+    });
+  });
+```
+- Notice *Q.denodeify* for *request.get* & *reqest.put*.  The *denodeify()* method takes a Node.js-style function (one that expects a callback) and returns a new promise-producing function from it.  Using denodeify is a convenient way to avoid calling Q.nfcall() all over the place.  Instead, you just denodeify the functions you plan to use, and call them later knowing they will produce promises.
+- We call *Q.async()* with a generator function. Q's *async* method returns a new promise-producing function that will start running the generator when you invoke it.  We invoke this function right away.
+- Inside the generator, any time we *yeild* a promise, Q will wait for the promise to resolve, then resume execution with the resolved value.  For example, we yeild a promise for *get* call to CouchDB.  When the request finishes, the promise is resolved and Q gives us back the value, which we assigned to *args*.  This is much like the calls to then(function(args){...}) we saw earlier, but written in a more linear style.
+- If the http status code form CouchDB was something other than the 200 OK, we send it back to the requester verbatim and return early. Otherwise, we move on to the second asynchronous call.  Again we yield a promise for a *get* call to CouchDB, and again we check that everything was OK when it comes back.
+- Finally, We add the book to the bundle and yield again--this time wait on a *put*.  When the put is finished, we send the results back to the requester.  If anything went wrong we catch it in the catch block.
+- This API makes three asynchronous requests, but does it in only one function thanks to Q.async and generator functions.  On the plus side, writing code in this way has the potential to make it look like synchronous, linear code.  But reaping this benefit means working deeply with promises and relying on some seemingly magical coordination logic.

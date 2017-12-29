@@ -31,9 +31,9 @@ module.exports = function(config, app) {
     
     deferred.promise.then(function(args) {  //<label id="code.bundle.create.then"/>
       let couchRes = args[0], body = args[1];
-      res.json(couchRes.statusCode, body);
+      res.status(couchRes.statusCode).json( body);
     }, function(err) {  //<label id="code.bundle.create.err"/>
-      res.json(502, { error: "bad_gateway", reason: err.code });
+      res.status(502).json( { error: "bad_gateway", reason: err.code });
     });
     
   });
@@ -48,9 +48,9 @@ module.exports = function(config, app) {
     Q.nfcall(request.get, config.b4db + '/' + req.params.id)  //<label id="code.bundle.get.nfcall"/>
       .then(function(args) {
         let couchRes = args[0], bundle = JSON.parse(args[1]);
-        res.json(couchRes.statusCode, bundle);
+        res.status(couchRes.statusCode).json( bundle);
       }, function(err) {
-        res.json(502, { error: "bad_gateway", reason: err.code });
+        res.status(502).json({ error: "bad_gateway", reason: err.code });
       });
   });
   // END:getBundle
@@ -78,10 +78,10 @@ module.exports = function(config, app) {
       })
       .then(function(args) {  //<label id="code.bundle.put-name.then-two"/>
         let couchRes = args[0], body = args[1];
-        res.json(couchRes.statusCode, body);
+        res.status(couchRes.statusCode).json(body);
       })
       .catch(function(err) {  //<label id="code.bundle.put-name.catch"/>
-        res.json(502, { error: "bad_gateway", reason: err.code });
+        res.status(502).json( { error: "bad_gateway", reason: err.code });
       });
   });
   // END:updateName
@@ -108,7 +108,7 @@ module.exports = function(config, app) {
       
       // fail fast if we couldn't retrieve the bundle
       if (couchRes.statusCode !== 200) {
-        res.json(couchRes.statusCode, bundle);
+        res.status(couchRes.statusCode).json(bundle);
         return;
       }
       
@@ -119,18 +119,18 @@ module.exports = function(config, app) {
       
       // fail fast if we couldn't retrieve the book
       if (couchRes.statusCode !== 200) {
-        res.json(couchRes.statusCode, book);
+        res.status(couchRes.statusCode).json(book);
         return;
       }
       
       // add the book to the bundle and put it back in CouchDB
       bundle.books[book._id] = book.title;  //<label id="code.bundle.add-book.add-book"/>
       args = yield put({url: config.b4db + bundle._id, json: bundle});
-      res.json(args[0].statusCode, args[1]);
+      res.status(args[0].statusCode).json(args[1]);
       
     })()  //<label id="code.bundle.add-book.async-invoke"/>
     .catch(function(err) {  //<label id="code.bundle.add-book.catch"/>
-      res.json(502, { error: "bad_gateway", reason: err.code });
+      res.status(502).json( { error: "bad_gateway", reason: err.code });
     });
   });
   // END:addBook
@@ -150,13 +150,14 @@ module.exports = function(config, app) {
       
       // fail fast if we couldn't retrieve the bundle
       if (couchRes.statusCode !== 200) {
-        res.json(couchRes.statusCode, bundle);
+        // res.json(couchRes.statusCode, bundle); // deprecated
+        res.status(couchRes.statusCode).json(bundle);
         return;
       }
       
       // fail if the bundle doesn't already have that book
       if (!(req.params.pgid in bundle.books)) {
-        res.json(409, {
+        res.status(409).json({
           error: "conflict",
           reason: "Bundle does not contain that book."
         });
@@ -171,7 +172,7 @@ module.exports = function(config, app) {
       
     })()
     .catch(function(err) {
-      res.json(502, { error: "bad_gateway", reason: err.code });
+      res.status(502).json( { error: "bad_gateway", reason: err.code });
     });
   });
   // END:removeBook
