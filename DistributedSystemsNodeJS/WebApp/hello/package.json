@@ -1,0 +1,32 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "Using Redis",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --harmony ./server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mharoot/NodeJs.git"
+  },
+  "keywords": [
+    "distributed",
+    "systems",
+    "nodejs",
+    "redis"
+  ],
+  "author": "Michael Harootoonyan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mharoot/NodeJs/issues"
+  },
+  "homepage": "https://github.com/mharoot/NodeJs#readme",
+  "dependencies": {
+    "connect-redis": "^3.3.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2",
+    "nodemon": "^1.14.6",
+    "redis": "^2.8.0"
+  }
+}
