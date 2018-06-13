@@ -141,7 +141,8 @@ $('.find-book').submit(function(event) {
   var
     $form = $(this),
     field = $form.find('[name="field"]').val(),
-    q = $(this).find('.search').val();
+    $search = $(this).find('.search')
+    q = $search['1'].value;
   
   $.ajax({
     url: '/api/search/book/by_' + field + '?q=' + encodeURIComponent(q),
